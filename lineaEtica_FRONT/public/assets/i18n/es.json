@@ -1,0 +1,19 @@
+{
+  "SIGN_IN": "Iniciar sesión",
+  "PASSWORD": "Contraseña",
+  "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
+  "LOGIN": "Iniciar sesión",
+  "RECUPERACION_TITLE": "Complete la siguiente información para recuperar su contraseña",
+  "ENVIAR_MAIL": "Enviar Email",
+  "Regresar": "Regresar",
+  "NumeroDocumento": "Usuario / Número de documento",
+  "Correo": "Correo Electrónico",
+  "CampoRequerido": "Este campo es requerido.",
+  "RefrescarCaptcha": "Refrescar CAPTCHA",
+  "IngreseCaptcha": "Ingrese el CAPTCHA",
+  "Bienvenido": "Bienvenido",
+  "CerrarSession": "Cerrar sesión",
+  "CambiarContraseña": "Cambiar Contraseña",
+  "Cerrar": "Cerrar",
+  "Aceptar": "Aceptar"
+}

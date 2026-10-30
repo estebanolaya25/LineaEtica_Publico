@@ -1,0 +1,12 @@
+<div class="layout-wrapper">
+  <app-sidebar />
+  <div class="layout-main">
+    <app-topbar />
+    <main class="layout-content">
+      <router-outlet />
+    </main>
+  </div>
+  @if (layoutState.sidebarOpen()) {
+    <div class="layout-backdrop d-lg-none" (click)="layoutState.close()"></div>
+  }
+</div>

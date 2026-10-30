@@ -1,0 +1,62 @@
+<aside class="sidebar"
+       [class.sidebar--closed]="!layoutState.sidebarOpen()"
+       [class.sidebar--dark]="theme.isDarkMode()">
+
+  <div class="sidebar__brand">
+    <div class="sidebar__logo-wrap">
+      <i class="bi bi-shield-lock-fill sidebar__logo-icon"></i>
+    </div>
+    <span class="sidebar__brand-name">Canal Ético Corporativo</span>
+  </div>
+
+  <div class="sidebar__user">
+    <div class="sidebar__user-avatar">
+      <i class="bi bi-person-circle"></i>
+    </div>
+    <div class="sidebar__user-info">
+      <span class="sidebar__user-name">{{ userName() }}</span>
+      <span class="sidebar__user-role">{{ userRole() || 'Usuario' }}</span>
+    </div>
+  </div>
+
+  <hr class="sidebar__divider" />
+
+  <nav class="sidebar__nav">
+    <ul class="sidebar__menu">
+      @for (item of menuItems(); track item.route + (item.queryParams?.['seccion'] ?? '')) {
+
+        @if (item.groupLabel) {
+          <li class="sidebar__group">
+            <span class="sidebar__group-label">{{ item.groupLabel }}</span>
+          </li>
+        }
+
+        <li class="sidebar__item">
+          <a [routerLink]="item.route"
+             [queryParams]="item.queryParams ?? null"
+             [routerLinkActiveOptions]="item.queryParams ? exactOptions : defaultOptions"
+             routerLinkActive="sidebar__link--active"
+             class="sidebar__link"
+             [title]="item.label"
+             (click)="onNavClick()">
+            <i class="bi {{ item.icon }} sidebar__icon"></i>
+            <span class="sidebar__label">{{ item.label }}</span>
+          </a>
+        </li>
+
+      }
+    </ul>
+  </nav>
+
+  <div class="sidebar__footer">
+    <span class="sidebar__version">v1.0</span>
+    <button class="sidebar__collapse-btn"
+            (click)="layoutState.toggle()"
+            [title]="layoutState.sidebarOpen() ? 'Contraer sidebar' : 'Expandir sidebar'">
+      <i class="bi"
+         [class.bi-chevron-left]="layoutState.sidebarOpen()"
+         [class.bi-chevron-right]="!layoutState.sidebarOpen()"></i>
+    </button>
+  </div>
+
+</aside>

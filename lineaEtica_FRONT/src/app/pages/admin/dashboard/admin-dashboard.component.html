@@ -1,0 +1,309 @@
+<div class="dashboard">
+
+  <div class="dash-header mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <h4 class="mb-0"><i class="bi bi-speedometer2 me-2" style="color:var(--accent)"></i>Panel de Control</h4>
+      <small class="text-muted">
+        Resumen general del Canal Ético Corporativo
+        @if (nombreEmpresaMostrado) { · <span class="fw-semibold">{{ nombreEmpresaMostrado }}</span> }
+        @else if (esDuenoProceso) { · <span class="fw-semibold">Todas las empresas</span> }
+      </small>
+    </div>
+    @if (esDuenoProceso) {
+      <div>
+        <select class="form-select form-select-sm" style="min-width:220px"
+                [(ngModel)]="empresaSeleccionada" (ngModelChange)="onEmpresaChange()">
+          <option [ngValue]="null">Todas las empresas</option>
+          @for (e of empresas; track e.id) {
+            <option [ngValue]="e.id">{{ e.nombre }}</option>
+          }
+        </select>
+      </div>
+    }
+  </div>
+
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border" style="color:var(--accent)" role="status"></div>
+      <p class="mt-3 text-muted">Cargando estadísticas...</p>
+    </div>
+  }
+
+  @if (error) {
+    <div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}</div>
+  }
+
+  @if (!cargando && !error && stats) {
+
+    <div class="row g-3 mb-4">
+
+      <div class="col-6 col-xl-2">
+        <div class="kpi-card kpi-total" (click)="irBandeja('pendientes')" role="button">
+          <div class="kpi-icon"><i class="bi bi-folder-fill"></i></div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats.total }}</span>
+            <span class="kpi-label">Total</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-xl-2">
+        <div class="kpi-card kpi-pending" (click)="irBandeja('pendientes')" role="button">
+          <div class="kpi-icon"><i class="bi bi-clock-history"></i></div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats.pendientes }}</span>
+            <span class="kpi-label">Por revisar</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-xl-2">
+        <div class="kpi-card kpi-success" (click)="irBandeja('historial')" role="button">
+          <div class="kpi-icon"><i class="bi bi-check-circle-fill"></i></div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats.aprobadas }}</span>
+            <span class="kpi-label">Aprobadas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-xl-2">
+        <div class="kpi-card kpi-danger" (click)="irBandeja('historial')" role="button">
+          <div class="kpi-icon"><i class="bi bi-x-circle-fill"></i></div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats.rechazadas }}</span>
+            <span class="kpi-label">Rechazadas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-xl-2">
+        <div class="kpi-card kpi-invest" (click)="irInvestigaciones()" role="button">
+          <div class="kpi-icon"><i class="bi bi-search"></i></div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats.enInvestigacion }}</span>
+            <span class="kpi-label">En investigación</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-xl-2">
+        <div class="kpi-card kpi-closed" (click)="irInvestigaciones()" role="button">
+          <div class="kpi-icon"><i class="bi bi-shield-check"></i></div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats.cerradas }}</span>
+            <span class="kpi-label">Cerradas</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row g-3 mb-3">
+
+      <div class="col-lg-5">
+        <div class="chart-card h-100">
+          <div class="chart-title">
+            <i class="bi bi-pie-chart-fill me-2"></i>Distribución por Estado
+          </div>
+
+          @if (stats.total === 0) {
+            <div class="empty-chart">
+              <i class="bi bi-inbox text-muted fs-2 d-block mb-2"></i>
+              <span class="text-muted small">Sin datos</span>
+            </div>
+          } @else {
+            <div class="donut-wrap">
+              <svg class="donut-svg" viewBox="0 0 140 140">
+                <circle cx="70" cy="70" r="54" fill="none" stroke="#f0f4f8" stroke-width="22"/>
+                @for (seg of donutSegments; track $index) {
+                  <circle cx="70" cy="70" r="54" fill="none"
+                          [attr.stroke]="seg.color"
+                          stroke-width="22"
+                          [attr.stroke-dasharray]="seg.dasharray"
+                          [attr.stroke-dashoffset]="seg.dashoffset"
+                          transform="rotate(-90 70 70)"/>
+                }
+                <text x="70" y="65" text-anchor="middle" class="donut-center-num">{{ stats.total }}</text>
+                <text x="70" y="82" text-anchor="middle" class="donut-center-lbl">total</text>
+              </svg>
+
+              <div class="donut-legend">
+                @for (seg of donutSegments; track $index) {
+                  <div class="legend-item">
+                    <span class="legend-dot" [style.background]="seg.color"></span>
+                    <span class="legend-name">{{ seg.estado }}</span>
+                    <span class="legend-val">{{ seg.cantidad }}</span>
+                    <span class="legend-pct text-muted">({{ seg.pct }}%)</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="chart-card h-100">
+          <div class="chart-title">
+            <i class="bi bi-bar-chart-fill me-2"></i>Evolución Mensual (últimos 6 meses)
+          </div>
+
+          <div class="bar-chart-wrap">
+            <div class="bar-chart">
+              @for (b of barData; track b.mes) {
+                <div class="bar-col">
+                  <span class="bar-count">{{ b.cantidad || '' }}</span>
+                  <div class="bar-outer">
+                    <div class="bar-inner"
+                         [style.height.%]="b.heightPct"
+                         [style.background]="b.cantidad ? 'var(--accent)' : '#e2e8f0'">
+                    </div>
+                  </div>
+                  <span class="bar-label">{{ b.label }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    @if (esDuenoProceso && empresaSeleccionada == null) {
+      <div class="row g-3 mb-3">
+        <div class="col-12">
+          <div class="chart-card">
+            <div class="chart-title">
+              <i class="bi bi-building me-2"></i>Denuncias por Empresa
+            </div>
+
+            @if (empresaRows.length === 0) {
+              <div class="empty-chart">
+                <i class="bi bi-inbox text-muted fs-2 d-block mb-2"></i>
+                <span class="text-muted small">Sin datos</span>
+              </div>
+            } @else {
+              <div class="hbar-chart">
+                @for (e of empresaRows; track e.nombreEmpresa) {
+                  <div class="hbar-row">
+                    <span class="hbar-label" [title]="e.nombreEmpresa">{{ e.nombreEmpresa }}</span>
+                    <div class="hbar-outer">
+                      <div class="hbar-inner" [style.width.%]="e.widthPct"></div>
+                    </div>
+                    <span class="hbar-count">{{ e.cantidad }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="row g-3">
+
+      <div class="col-lg-4 col-md-6">
+        <div class="chart-card h-100">
+          <div class="chart-title">
+            <i class="bi bi-people-fill me-2"></i>Tipo de Denuncia
+          </div>
+          <div class="tipo-wrap">
+            <div class="tipo-row mb-3">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="d-flex align-items-center gap-2">
+                  <i class="bi bi-incognito text-secondary"></i>
+                  <span class="small fw-500">Anónimas</span>
+                </span>
+                <span class="small fw-semibold">{{ stats.anonimas }} <span class="text-muted fw-normal">({{ anonimaPct }}%)</span></span>
+              </div>
+              <div class="progress tipo-bar">
+                <div class="progress-bar bg-secondary" [style.width.%]="anonimaPct"></div>
+              </div>
+            </div>
+            <div class="tipo-row">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="d-flex align-items-center gap-2">
+                  <i class="bi bi-person-lines-fill" style="color:var(--accent)"></i>
+                  <span class="small fw-500">Identificadas</span>
+                </span>
+                <span class="small fw-semibold">{{ stats.noAnonimas }} <span class="text-muted fw-normal">({{ noAnonimaPct }}%)</span></span>
+              </div>
+              <div class="progress tipo-bar">
+                <div class="progress-bar" [style.width.%]="noAnonimaPct" style="background:var(--accent)"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="chart-card h-100">
+          <div class="chart-title">
+            <i class="bi bi-signpost-split-fill me-2"></i>Por Canal de Origen
+          </div>
+          @if (canalRows.length === 0) {
+            <div class="empty-chart">
+              <i class="bi bi-inbox text-muted fs-2 d-block mb-2"></i>
+              <span class="text-muted small">Sin datos</span>
+            </div>
+          } @else {
+            <div class="hbar-chart">
+              @for (c of canalRows; track c.canal) {
+                <div class="hbar-row">
+                  <span class="hbar-label" [title]="c.canal">{{ c.canal }}</span>
+                  <div class="hbar-outer">
+                    <div class="hbar-inner" [style.width.%]="c.widthPct"></div>
+                  </div>
+                  <span class="hbar-count">{{ c.cantidad }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="chart-card h-100">
+          <div class="chart-title">
+            <i class="bi bi-lightning-charge-fill me-2"></i>Acciones Rápidas
+          </div>
+          <div class="d-flex flex-column gap-2 mt-1">
+            <button class="btn btn-outline-primary text-start d-flex align-items-center gap-2"
+                    (click)="irBandeja('pendientes')">
+              <i class="bi bi-clock-history"></i>
+              <span>Revisar denuncias pendientes</span>
+              @if (stats.pendientes > 0) {
+                <span class="badge ms-auto" style="background:var(--accent)">{{ stats.pendientes }}</span>
+              }
+            </button>
+            <button class="btn btn-outline-secondary text-start d-flex align-items-center gap-2"
+                    (click)="irBandeja('historial')">
+              <i class="bi bi-archive-fill"></i>
+              <span>Ver historial</span>
+              <span class="badge ms-auto bg-secondary">{{ stats.aprobadas + stats.rechazadas }}</span>
+            </button>
+            <button class="btn btn-outline-primary text-start d-flex align-items-center gap-2"
+                    style="border-color:#1a7fc1;color:#1a7fc1"
+                    (click)="irInvestigaciones()">
+              <i class="bi bi-shield-check"></i>
+              <span>Ver investigaciones</span>
+              @if (stats.enInvestigacion > 0) {
+                <span class="badge ms-auto" style="background:#1a7fc1">{{ stats.enInvestigacion }}</span>
+              }
+            </button>
+            @if (stats.devueltas > 0) {
+              <div class="alert alert-warning py-2 px-3 mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span class="small">{{ stats.devueltas }} denuncia(s) devuelta(s) esperan corrección del reportante.</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  }
+
+</div>

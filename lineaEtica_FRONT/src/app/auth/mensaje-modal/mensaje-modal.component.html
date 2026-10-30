@@ -1,0 +1,24 @@
+<div class="modal-wrapper">
+
+  <button class="btn-dismiss" (click)="dialogRef.close()" title="Cerrar">
+    <i class="bi bi-x-lg"></i>
+  </button>
+
+  <div class="modal-icon-wrap" [class.is-error]="data.isError">
+    <i class="bi" [class.bi-exclamation-triangle-fill]="data.isError" [class.bi-check-circle-fill]="!data.isError"></i>
+  </div>
+
+  <div class="modal-body">
+    @if (data.title) {
+      <h5 class="modal-title">{{ data.title }}</h5>
+    }
+    <p class="modal-message">{{ data.name }}</p>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn-cerrar" (click)="dialogRef.close()">
+      {{ 'Cerrar' | translate }}
+    </button>
+  </div>
+
+</div>

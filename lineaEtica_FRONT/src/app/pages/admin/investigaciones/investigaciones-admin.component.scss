@@ -1,0 +1,70 @@
+.inv-admin-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.inv-header {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border-left: 4px solid var(--accent, #486581);
+}
+
+.filtros-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-filtro {
+  border: 1px solid #dee2e6;
+  background: white;
+  border-radius: 20px;
+  padding: 0.35rem 1rem;
+  font-size: 0.85rem;
+  color: #64748b;
+  transition: all 0.15s;
+
+  &:hover { background: #f8f9fa; }
+
+  &.activo {
+    background: var(--accent, #486581);
+    color: white;
+    border-color: var(--accent, #486581);
+  }
+}
+
+.inv-table {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+
+  thead th {
+    background: #f8f9fa;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #64748b;
+    border-bottom: 2px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+  }
+
+  tbody td {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+    font-size: 0.88rem;
+  }
+}
+
+.inv-row {
+  cursor: pointer;
+  transition: background 0.1s;
+  &:hover { background: #f0f4f8; }
+}
+
+.form-nombre { font-size: 0.88rem; }
+
+.badge-investigacion { background-color: #1a7fc1; color: white; }
+.badge-cerrado       { background-color: #198754; color: white; }
+.badge-anonimo       { background-color: #64748b; color: white; font-size: 0.72rem; }

@@ -1,0 +1,238 @@
+.dashboard {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.dash-header {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+  border-left: 4px solid var(--accent, #486581);
+}
+
+.kpi-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1px 6px rgba(0,0,0,.07);
+  border: 1px solid #e9eef4;
+  cursor: pointer;
+  transition: transform .18s, box-shadow .18s;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,.1);
+  }
+}
+
+.kpi-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; flex-shrink: 0;
+}
+
+.kpi-body {
+  display: flex; flex-direction: column; gap: 2px;
+}
+
+.kpi-value {
+  font-size: 1.9rem; font-weight: 700; line-height: 1;
+}
+
+.kpi-label {
+  font-size: .75rem; font-weight: 500; color: #718096;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+
+.kpi-total  { .kpi-icon { background: rgba(var(--accent-rgb),.12); color: var(--accent); }  .kpi-value { color: var(--accent); } }
+.kpi-pending{ .kpi-icon { background: #fef3c7; color: #d97706; } .kpi-value { color: #d97706; } }
+.kpi-success{ .kpi-icon { background: #d1fae5; color: #059669; } .kpi-value { color: #059669; } }
+.kpi-danger { .kpi-icon { background: #fee2e2; color: #dc2626; } .kpi-value { color: #dc2626; } }
+.kpi-invest { .kpi-icon { background: #dbeafe; color: #1a7fc1; } .kpi-value { color: #1a7fc1; } }
+.kpi-closed { .kpi-icon { background: #d1fae5; color: #198754; } .kpi-value { color: #198754; } }
+
+.chart-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 6px rgba(0,0,0,.07);
+  border: 1px solid #e9eef4;
+}
+
+.chart-title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 1.25rem;
+}
+
+.empty-chart {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.donut-svg {
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+.donut-center-num {
+  font-size: 22px;
+  font-weight: 700;
+  fill: #1a202c;
+  font-family: inherit;
+}
+
+.donut-center-lbl {
+  font-size: 10px;
+  fill: #a0aec0;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  flex: 1;
+  min-width: 130px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: .8rem;
+}
+
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-name { flex: 1; color: #4a5568; }
+.legend-val  { font-weight: 700; color: #1a202c; }
+.legend-pct  { font-size: .72rem; }
+
+.bar-chart-wrap {
+  padding: .5rem 0;
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: .5rem;
+  height: 160px;
+  padding: 0 .5rem;
+}
+
+.bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.bar-count {
+  font-size: .72rem;
+  font-weight: 700;
+  color: #4a5568;
+  min-height: 18px;
+  margin-bottom: 2px;
+}
+
+.bar-outer {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  background: #f8fafc;
+  border-radius: 6px 6px 0 0;
+  overflow: hidden;
+}
+
+.bar-inner {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  transition: height .4s ease;
+  min-height: 4px;
+}
+
+.bar-label {
+  font-size: .72rem;
+  color: #718096;
+  font-weight: 500;
+  margin-top: 6px;
+}
+
+.hbar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+  padding: .25rem 0;
+}
+
+.hbar-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.hbar-label {
+  width: 140px;
+  flex-shrink: 0;
+  font-size: .8rem;
+  color: #4a5568;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hbar-outer {
+  flex: 1;
+  height: 14px;
+  background: #f8fafc;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.hbar-inner {
+  height: 100%;
+  border-radius: 7px;
+  background: var(--accent);
+  transition: width .4s ease;
+  min-width: 4px;
+}
+
+.hbar-count {
+  width: 32px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: .8rem;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.tipo-wrap { padding: .25rem 0; }
+.tipo-bar  { height: 10px; border-radius: 6px; background: #f0f4f8; }
+
+.fw-500 { font-weight: 500; }

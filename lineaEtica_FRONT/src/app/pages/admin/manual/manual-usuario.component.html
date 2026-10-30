@@ -1,0 +1,452 @@
+<div class="manual-wrapper">
+
+  <div class="manual-header">
+    <div>
+      <h4 class="mb-0"><i class="bi bi-journal-bookmark-fill me-2" style="color:var(--accent)"></i>Manual de Usuario</h4>
+      <small class="text-muted">Guía de uso del Canal Ético Corporativo para los 5 roles del sistema</small>
+    </div>
+    <button class="btn btn-outline-primary btn-sm" (click)="descargarPdf()" [disabled]="generandoPdf">
+      @if (generandoPdf) { <span class="spinner-border spinner-border-sm me-2"></span> }
+      @else { <i class="bi bi-file-earmark-pdf-fill me-2"></i> }
+      Descargar PDF
+    </button>
+  </div>
+
+  <div class="manual-shell">
+
+    <button class="nav-toggle-mobile d-lg-none" (click)="toggleSidebar()">
+      <i class="bi bi-list me-2"></i>Índice del manual
+    </button>
+
+    <aside class="manual-nav" [class.open]="sidebarOpen" #sidebar>
+      <div class="navgroup">
+        <div class="navgroup-label">Empezar</div>
+        <a class="navlink" [class.active]="activeSection === 'portada'" href="#portada" (click)="irASeccion($event, 'portada'); closeSidebar()">
+          <span class="navdot" style="background:#94a3b8"></span>Portada
+        </a>
+        <a class="navlink" [class.active]="activeSection === 'acceso'" href="#acceso" (click)="irASeccion($event, 'acceso'); closeSidebar()">
+          <span class="navdot" style="background:#94a3b8"></span>Acceder a su cuenta
+        </a>
+      </div>
+      <div class="navgroup">
+        <div class="navgroup-label">Roles</div>
+        <a class="navlink" [class.active]="activeSection === 'denunciante'" href="#denunciante" (click)="irASeccion($event, 'denunciante'); closeSidebar()">
+          <span class="navdot" style="background:#64748b"></span>Denunciante
+        </a>
+        <a class="navlink" [class.active]="activeSection === 'consultor'" href="#consultor" (click)="irASeccion($event, 'consultor'); closeSidebar()">
+          <span class="navdot" style="background:var(--accent)"></span>Consultor
+        </a>
+        <a class="navlink" [class.active]="activeSection === 'investigador'" href="#investigador" (click)="irASeccion($event, 'investigador'); closeSidebar()">
+          <span class="navdot" style="background:#2f7a6b"></span>Investigador
+        </a>
+        <a class="navlink" [class.active]="activeSection === 'jefe'" href="#jefe" (click)="irASeccion($event, 'jefe'); closeSidebar()">
+          <span class="navdot" style="background:#4c4a8a"></span>Jefe del proceso
+        </a>
+        <a class="navlink" [class.active]="activeSection === 'registrador'" href="#registrador" (click)="irASeccion($event, 'registrador'); closeSidebar()">
+          <span class="navdot" style="background:#3d7a9e"></span>Registrador
+        </a>
+      </div>
+      <div class="navgroup">
+        <div class="navgroup-label">Consulta</div>
+        <a class="navlink" [class.active]="activeSection === 'referencia'" href="#referencia" (click)="irASeccion($event, 'referencia'); closeSidebar()">
+          <span class="navdot" style="background:#94a3b8"></span>Menú por rol
+        </a>
+      </div>
+    </aside>
+
+    @if (sidebarOpen) {
+      <div class="nav-backdrop-mobile d-lg-none" (click)="closeSidebar()"></div>
+    }
+
+    <div class="manual-content" #content>
+
+      <div class="cover" id="portada" data-section>
+        <span class="kicker">Manual de usuario · Todos los roles</span>
+        <h1>Canal Ético Corporativo</h1>
+        <p class="lede">Guía de uso del canal de denuncias del grupo empresarial. Cubre los cinco roles del sistema: qué ve cada uno al ingresar, qué puede hacer y los pasos exactos para cada tarea habitual.</p>
+
+        <div class="role-grid">
+          <a class="role-card" style="--card-color:#64748b" href="#denunciante" (click)="irASeccion($event, 'denunciante')">
+            <h3>Denunciante</h3>
+            <p>Reporta situaciones de forma anónima o identificada y hace seguimiento a sus reportes.</p>
+          </a>
+          <a class="role-card" style="--card-color:var(--accent)" href="#consultor" (click)="irASeccion($event, 'consultor')">
+            <h3>Consultor</h3>
+            <p>Revisa, aprueba, devuelve o rechaza denuncias de su empresa y asigna investigadores.</p>
+          </a>
+          <a class="role-card" style="--card-color:#2f7a6b" href="#investigador" (click)="irASeccion($event, 'investigador')">
+            <h3>Investigador</h3>
+            <p>Investiga los casos que le asignan, hace seguimiento y cierra la investigación.</p>
+          </a>
+          <a class="role-card" style="--card-color:#4c4a8a" href="#jefe" (click)="irASeccion($event, 'jefe')">
+            <h3>Jefe del proceso</h3>
+            <p>Ve el flujo completo de todas las empresas del grupo con fines de indicadores. Solo lectura.</p>
+          </a>
+          <a class="role-card" style="--card-color:#3d7a9e" href="#registrador" (click)="irASeccion($event, 'registrador')">
+            <h3>Registrador</h3>
+            <p>Registra en la plataforma las denuncias que llegan por correo, WhatsApp u otro canal externo.</p>
+          </a>
+        </div>
+
+        <div class="callout info">
+          <span class="callout-label">Cómo usar este manual</span>
+          <p>Use el índice para saltar directo a su rol. Cada sección explica primero qué puede y qué no puede hacer, y luego el paso a paso de sus tareas más comunes.</p>
+        </div>
+      </div>
+
+      <section class="role" id="acceso" data-section>
+        <span class="kicker">Antes de empezar</span>
+        <h2>Acceder a su cuenta</h2>
+        <p class="role-sub">Aplica a los cinco roles — solo cambia a dónde lo lleva la aplicación después de ingresar.</p>
+
+        <h3 class="step-title">Iniciar sesión</h3>
+        <ol class="steps">
+          <li><strong>Ingrese su número de documento y contraseña.</strong><p>En la pantalla de inicio de sesión, complete los dos campos junto con el código de la imagen (CAPTCHA). Si el código no se lee bien, use el botón de refrescar junto al recuadro.</p></li>
+          <li><strong>Presione "Iniciar sesión".</strong><p>Si el sistema exige actualizar su contraseña (por ejemplo, la primera vez que ingresa con una contraseña temporal), lo llevará automáticamente a la pantalla para definir una nueva antes de continuar.</p></li>
+          <li><strong>Llegará a la pantalla que le corresponde según su rol.</strong><p>Denunciante ve la pantalla de inicio para crear/consultar denuncias; los demás roles caen directo en su propio panel de control (dashboard).</p></li>
+        </ol>
+
+        <div class="callout danger">
+          <span class="callout-label">Si olvidó su contraseña</span>
+          <p>Haga clic en <strong>"¿Olvidó su contraseña?"</strong> desde el login, escriba su correo electrónico y resuelva el CAPTCHA. Le llegará un correo con una contraseña nueva; ingrese con ella y, por seguridad, cámbiela apenas entre.</p>
+        </div>
+
+        <h3 class="step-title">Crear una cuenta (solo para reportar como Denunciante)</h3>
+        <p>Los demás roles (Consultor, Investigador, Jefe del proceso, Registrador) no se autorregistran — su cuenta la crea un Consultor o el Jefe del proceso desde "Gestión de Usuarios", y la contraseña temporal les llega por correo.</p>
+        <ol class="steps">
+          <li><strong>Desde el login, presione "Crear cuenta".</strong></li>
+          <li><strong>Complete el formulario:</strong><p>Nombre completo, correo electrónico, contraseña (mínimo 8 caracteres) y confirmación de la contraseña, más el código de verificación.</p></li>
+          <li><strong>Presione "Crear cuenta".</strong><p>Al confirmarse, puede ingresar de inmediato con su correo y la contraseña que definió.</p></li>
+        </ol>
+      </section>
+
+      <section class="role" id="denunciante" data-section>
+        <div class="role-heading">
+          <div class="role-badge" style="--badge-color:#64748b">D</div>
+          <h2>Denunciante</h2>
+        </div>
+        <p class="role-sub">Cualquier persona con cuenta creada por autorregistro. Reporta situaciones y hace seguimiento a lo que ha reportado.</p>
+
+        <div class="capability-card">
+          <div class="capability-col can">
+            <h4>Puede</h4>
+            <ul>
+              <li>Crear denuncias anónimas o identificadas</li>
+              <li>Elegir a qué empresa del grupo pertenece cada denuncia</li>
+              <li>Guardar un borrador y continuarlo después</li>
+              <li>Corregir una denuncia que fue devuelta</li>
+              <li>Ver el estado de todas sus denuncias y descargar el PDF</li>
+            </ul>
+          </div>
+          <div class="capability-col cannot">
+            <h4>No puede</h4>
+            <ul>
+              <li>Ver denuncias de otras personas</li>
+              <li>Ver quién investiga o revisa su caso</li>
+              <li>Editar una denuncia ya enviada, salvo que se la devuelvan</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="step-title">Crear una denuncia</h3>
+        <ol class="steps">
+          <li><strong>Desde "Inicio", elija el tipo de reporte.</strong>
+            <p><strong>Denuncia Anónima:</strong> su identidad no queda registrada en el reporte.</p>
+            <p><strong>Denuncia No Anónima:</strong> sus datos de contacto quedan registrados, lo que permite un seguimiento más directo.</p>
+          </li>
+          <li><strong>Seleccione la empresa</strong> a la que corresponde su denuncia, de la lista del grupo empresarial. Es obligatorio: la denuncia queda asociada a esa empresa para que la revise el equipo correcto.</li>
+          <li><strong>Complete el formulario por secciones.</strong><p>Avance con el botón "Siguiente" y regrese con "Anterior" si necesita corregir algo. La barra superior le muestra en qué paso va. Los campos marcados como obligatorios deben llenarse para poder avanzar — si falta alguno, verá un aviso con la lista de lo pendiente.</p></li>
+          <li><strong>Adjunte evidencia si aplica</strong> (documentos, imágenes) en los campos que lo permitan.</li>
+          <li><strong>Guarde un borrador o envíe.</strong><p>Puede usar <span class="btn-ref">Guardar borrador</span> en cualquier momento y continuar más tarde desde "Mis Denuncias". Cuando esté completo, use <span class="btn-ref">Enviar Denuncia</span> en el último paso.</p></li>
+          <li><strong>Anote su número de radicado.</strong><p>Al enviarla, la pantalla de confirmación le muestra el número de radicado — guárdelo para hacer seguimiento.</p></li>
+        </ol>
+
+        <h3 class="step-title">Corregir una denuncia devuelta</h3>
+        <p>Cuando el Consultor devuelve una denuncia porque falta información, usted recibe un aviso y puede corregirla:</p>
+        <ol class="steps">
+          <li><strong>Vaya a "Mis Denuncias"</strong> y busque la fila con estado <span class="badge-ref">Devuelto</span>. Presione <span class="btn-ref">Corregir</span>.</li>
+          <li><strong>Lea el motivo de la devolución</strong>, visible en un aviso al inicio del formulario.</li>
+          <li><strong>Complete lo que falta.</strong><p>Si el Consultor marcó campos puntuales, solo esos quedan editables (resaltados) — el resto del formulario queda bloqueado. Si no marcó campos específicos, todo el formulario queda editable de nuevo.</p></li>
+          <li><strong>Envíe la corrección.</strong><p>Vuelve a quedar en revisión con el Consultor.</p></li>
+        </ol>
+
+        <h3 class="step-title">Consultar mis denuncias</h3>
+        <p>En <strong>"Mis Denuncias"</strong> encuentra la lista completa con radicado, tipo, estado y fecha. Según el estado de cada una:</p>
+        <ul class="plain">
+          <li><span class="badge-ref">Creado</span> / <span class="badge-ref">Guardado</span> — es un borrador; use <span class="btn-ref">Continuar</span> para terminarlo.</li>
+          <li><span class="badge-ref">Devuelto</span> — requiere corrección suya; use <span class="btn-ref">Corregir</span>.</li>
+          <li><span class="badge-ref">Enviado</span>, <span class="badge-ref">Corregido</span>, <span class="badge-ref">Aprobado</span>, <span class="badge-ref">Rechazado</span>, <span class="badge-ref">Cerrado</span> — ya fue procesada; puede descargar el <span class="btn-ref">PDF</span>.</li>
+        </ul>
+      </section>
+
+      <section class="role" id="consultor" data-section>
+        <div class="role-heading">
+          <div class="role-badge" style="--badge-color:var(--accent)">C</div>
+          <h2>Consultor</h2>
+        </div>
+        <p class="role-sub">Gestiona las denuncias de su empresa: las revisa, decide su curso, asigna investigador y administra usuarios de su empresa.</p>
+
+        <div class="capability-card">
+          <div class="capability-col can">
+            <h4>Puede</h4>
+            <ul>
+              <li>Ver y decidir sobre las denuncias de su propia empresa</li>
+              <li>Aprobar, devolver o rechazar una denuncia</li>
+              <li>Asignar un investigador a una denuncia aprobada</li>
+              <li>Ver el estado de las investigaciones en curso</li>
+              <li>Crear y editar usuarios Consultor, Investigador o Registrador de su empresa</li>
+            </ul>
+          </div>
+          <div class="capability-col cannot">
+            <h4>No puede</h4>
+            <ul>
+              <li>Ver denuncias de otras empresas del grupo</li>
+              <li>Crear usuarios de tipo Jefe del proceso</li>
+              <li>Crear usuarios para una empresa distinta a la suya</li>
+              <li>Investigar directamente un caso (eso lo hace el Investigador)</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="step-title">Su panel de control</h3>
+        <p>Al ingresar cae directo en el <strong>Dashboard</strong>: totales, denuncias por revisar, aprobadas, rechazadas, en investigación y cerradas; un gráfico de distribución por estado; la evolución de los últimos 6 meses; la proporción de denuncias anónimas frente a identificadas; y un desglose por canal de origen (Plataforma, Correo, WhatsApp, etc.).</p>
+
+        <h3 class="step-title">Revisar una denuncia</h3>
+        <ol class="steps">
+          <li><strong>Vaya a "Por Revisar".</strong><p>Ahí aparecen las denuncias recién enviadas o corregidas, y las investigaciones que le piden información a usted.</p></li>
+          <li><strong>Presione "Revisar" en la fila correspondiente.</strong></li>
+          <li><strong>Lea el contenido completo</strong> de la denuncia, sección por sección, con los adjuntos que el denunciante haya subido.</li>
+          <li><strong>Elija una acción:</strong>
+            <p><strong>Aprobar</strong> — la denuncia queda lista para asignar investigador. Puede dejar un comentario opcional.</p>
+            <p><strong>Devolver</strong> — active el modo de selección y marque los campos o secciones que el denunciante debe corregir (o déjelo sin marcar para una devolución general). El motivo es obligatorio.</p>
+            <p><strong>Rechazar</strong> — cierra la denuncia sin investigación. El motivo es obligatorio.</p>
+          </li>
+          <li><strong>Confirme.</strong><p>El denunciante recibe la notificación correspondiente y usted vuelve a la bandeja automáticamente.</p></li>
+        </ol>
+
+        <div class="callout info">
+          <span class="callout-label">Historial</span>
+          <p>Las denuncias ya decididas (aprobadas, rechazadas, cerradas) quedan en <strong>"Historial"</strong>, donde puede consultarlas en modo lectura con <span class="btn-ref">Ver</span>.</p>
+        </div>
+
+        <h3 class="step-title">Asignar un investigador</h3>
+        <ol class="steps">
+          <li><strong>Abra una denuncia en estado <span class="badge-ref">Aprobado</span>.</strong><p>Verá el panel "Derivar a Investigación".</p></li>
+          <li><strong>Presione "Asignar Investigador".</strong></li>
+          <li><strong>Elija el investigador</strong> de la lista y, si quiere, agregue instrucciones para orientar la investigación.</li>
+          <li><strong>Confirme la asignación.</strong><p>La denuncia pasa a estado "En investigación" y el investigador queda notificado.</p></li>
+        </ol>
+
+        <h3 class="step-title">Seguimiento de investigaciones</h3>
+        <p>En <strong>"Investigaciones"</strong> ve el listado completo (activas y cerradas) con el investigador asignado y cuántos comentarios de seguimiento lleva cada caso. Es una vista de consulta: el trabajo de investigar y cerrar el caso lo hace el Investigador. Si un investigador le solicita información desde una investigación abierta, el caso aparece también en su bandeja "Por Revisar" para que responda.</p>
+
+        <h3 class="step-title">Gestión de usuarios</h3>
+        <ol class="steps">
+          <li><strong>Vaya a "Gestión de Usuarios"</strong> y presione "Nuevo usuario".</li>
+          <li><strong>Complete el formulario:</strong> nombres, apellidos, tipo y número de documento, tipo de usuario (Consultor, Investigador o Registrador — no puede crear Jefe del proceso) y correo electrónico. La empresa queda fija en la suya.</li>
+          <li><strong>Guarde.</strong><p>Al usuario le llega la contraseña temporal por correo, y se le pedirá cambiarla al ingresar por primera vez.</p></li>
+        </ol>
+        <p>Para editar un usuario existente, use el ícono de lápiz en su fila; ahí también puede activarlo o desactivarlo.</p>
+      </section>
+
+      <section class="role" id="investigador" data-section>
+        <div class="role-heading">
+          <div class="role-badge" style="--badge-color:#2f7a6b">I</div>
+          <h2>Investigador</h2>
+        </div>
+        <p class="role-sub">Investiga los casos que el Consultor le asigna: hace seguimiento documentado, pide información si le falta, y cierra el caso al concluir.</p>
+
+        <div class="capability-card">
+          <div class="capability-col can">
+            <h4>Puede</h4>
+            <ul>
+              <li>Ver el contenido completo de los casos que tiene asignados</li>
+              <li>Agregar comentarios de seguimiento con adjuntos</li>
+              <li>Solicitar información adicional al Consultor</li>
+              <li>Reasignar el caso a otro investigador de su empresa</li>
+              <li>Cerrar la investigación con una conclusión</li>
+            </ul>
+          </div>
+          <div class="capability-col cannot">
+            <h4>No puede</h4>
+            <ul>
+              <li>Ver casos que no tiene asignados</li>
+              <li>Aprobar, devolver o rechazar una denuncia (eso es del Consultor)</li>
+              <li>Agregar comentarios mientras espera respuesta del Consultor</li>
+              <li>Reabrir un caso ya cerrado</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="step-title">Trabajar un caso asignado</h3>
+        <ol class="steps">
+          <li><strong>Vaya a "Mis Investigaciones"</strong> y ábralo con <span class="btn-ref">Ver</span>. Puede filtrar por "En Investigación", "Cerradas" o "Todas".</li>
+          <li><strong>Revise el contenido de la denuncia</strong> en el panel izquierdo, junto con cualquier nota que haya dejado el Consultor al derivarla.</li>
+          <li><strong>Agregue comentarios de seguimiento</strong> a medida que avanza: escriba el comentario, adjunte archivos si necesita, y presione "Agregar Comentario". Cada entrada queda en el historial con fecha y autor.</li>
+        </ol>
+
+        <h3 class="step-title">Solicitar información al Consultor</h3>
+        <ol class="steps">
+          <li><strong>Presione "Solicitar información"</strong> dentro del caso.</li>
+          <li><strong>Escriba qué necesita</strong> y adjunte soporte si aplica.</li>
+          <li><strong>Envíe la solicitud.</strong><p>El caso queda en pausa ("Pendiente respuesta") hasta que el Consultor responda; no podrá agregar más comentarios mientras tanto. Cuando responda, el caso vuelve a quedar activo automáticamente.</p></li>
+        </ol>
+
+        <h3 class="step-title">Reasignar un caso</h3>
+        <p>Si el caso debe pasar a otro investigador de su empresa, use <strong>"Reasignar a otro investigador"</strong>, elija a quién y explique el motivo. Queda registrado en el historial de trazabilidad del caso.</p>
+
+        <h3 class="step-title">Cerrar la investigación</h3>
+        <ol class="steps">
+          <li><strong>Presione "Iniciar Cierre".</strong></li>
+          <li><strong>Escriba la conclusión</strong> de la investigación.</li>
+          <li><strong>Confirme el cierre.</strong></li>
+        </ol>
+        <div class="callout warn">
+          <span class="callout-label">Antes de cerrar</span>
+          <p>Una vez cerrada, no podrá agregar más comentarios ni adjuntos al caso. Verifique que la conclusión y el soporte queden completos antes de confirmar.</p>
+        </div>
+      </section>
+
+      <section class="role" id="jefe" data-section>
+        <div class="role-heading">
+          <div class="role-badge" style="--badge-color:#4c4a8a">J</div>
+          <h2>Jefe del proceso</h2>
+        </div>
+        <p class="role-sub">Ve el flujo completo del proceso en <strong>todas las empresas</strong> del grupo, con fines de indicadores globales. Es un rol de consulta: no gestiona denuncias.</p>
+
+        <div class="capability-card">
+          <div class="capability-col can">
+            <h4>Puede</h4>
+            <ul>
+              <li>Ver el dashboard, la bandeja y las investigaciones de cualquier empresa del grupo</li>
+              <li>Elegir ver el agregado de todas las empresas o filtrar por una específica</li>
+              <li>Ver el contenido completo de cualquier denuncia o investigación, y descargar sus adjuntos</li>
+              <li>Agregar comentarios de seguimiento a una investigación</li>
+              <li>Crear usuarios de cualquier tipo, incluido otro Jefe del proceso</li>
+            </ul>
+          </div>
+          <div class="capability-col cannot">
+            <h4>No puede</h4>
+            <ul>
+              <li>Aprobar, devolver ni rechazar una denuncia</li>
+              <li>Asignar un investigador</li>
+              <li>Responder solicitudes de información del investigador ni devolver al denunciante</li>
+              <li>Cambiar el estado de ninguna denuncia o investigación</li>
+            </ul>
+          </div>
+        </div>
+
+        <p>Las pantallas son las mismas que usa el Consultor (Dashboard, Por Revisar, Historial, Investigaciones, Gestión de Usuarios), con estas diferencias:</p>
+
+        <h3 class="step-title">Selector de empresa en el Dashboard</h3>
+        <ol class="steps">
+          <li><strong>Al entrar al Dashboard</strong> ve, junto al título, un selector desplegable con <span class="btn-ref">Todas las empresas</span> y el listado de empresas del grupo.</li>
+          <li><strong>Déjelo en "Todas las empresas"</strong> para ver el agregado global, incluyendo el desglose "Denuncias por Empresa" que compara el volumen entre todas.</li>
+          <li><strong>Elija una empresa puntual</strong> para ver su dashboard completo (KPIs, distribución por estado, evolución mensual, canal de origen) como si fuera el Consultor de esa empresa.</li>
+        </ol>
+        <p>En la bandeja y en investigaciones, además, ve una columna adicional con el nombre de la <strong>empresa</strong> de cada denuncia, ya que ahí conviven las de todo el grupo.</p>
+
+        <h3 class="step-title">Revisar una denuncia (solo lectura)</h3>
+        <p>Puede abrir cualquier denuncia igual que el Consultor y ver todo su contenido, pero en vez de los botones de Aprobar/Devolver/Rechazar o Asignar Investigador, verá un mensaje indicando que la denuncia no requiere acción de su parte. La decisión sobre cada caso siempre queda en manos del Consultor de la empresa correspondiente.</p>
+
+        <h3 class="step-title">Comentar una investigación</h3>
+        <p>Al abrir el detalle de una investigación puede usar el panel <strong>"Agregar Comentario"</strong> para dejar una nota de seguimiento visible para el investigador — por ejemplo, para pedir una aclaración o dejar constancia de algo. A diferencia del Consultor, no tiene acceso a "Responder al Investigador" ni a "Devolver al Denunciante": esas acciones cambian el estado del caso y son exclusivas del Consultor de la empresa.</p>
+      </section>
+
+      <section class="role" id="registrador" data-section>
+        <div class="role-heading">
+          <div class="role-badge" style="--badge-color:#3d7a9e">R</div>
+          <h2>Registrador</h2>
+        </div>
+        <p class="role-sub">Registra en la plataforma las denuncias que le llegan por un canal externo — correo, WhatsApp, en persona o por teléfono — a nombre de la persona que reportó.</p>
+
+        <div class="capability-card">
+          <div class="capability-col can">
+            <h4>Puede</h4>
+            <ul>
+              <li>Montar una denuncia a nombre de un denunciante, indicando el canal de origen</li>
+              <li>Buscar si el correo del denunciante ya tiene cuenta</li>
+              <li>Marcar la denuncia como anónima o no anónima</li>
+              <li>Ver el historial de lo que ha montado, por canal</li>
+            </ul>
+          </div>
+          <div class="capability-col cannot">
+            <h4>No puede</h4>
+            <ul>
+              <li>Elegir la empresa de la denuncia — siempre queda en la suya</li>
+              <li>Revisar, aprobar ni investigar denuncias</li>
+              <li>Adjuntar archivos al montar la denuncia (por ahora solo texto)</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="step-title">Montar una denuncia</h3>
+        <ol class="steps">
+          <li><strong>Vaya a "Montar Denuncia"</strong> e ingrese el correo de la persona que reportó, luego presione "Buscar".</li>
+          <li><strong>Revise el resultado de la búsqueda.</strong>
+            <p>Si ya existe una cuenta con ese correo, la denuncia quedará asociada a ella. Si no existe, la plataforma le avisa que creará una cuenta nueva automáticamente.</p>
+          </li>
+          <li><strong>Elija el canal de origen:</strong> Correo, WhatsApp, Presencial, Teléfono u Otro.</li>
+          <li><strong>Marque el tipo de denuncia.</strong><p>Use <strong>No Anónima</strong> si la persona dio datos que la identifican (nombre, cargo, área); use <strong>Anónima</strong> si no los dio. El correo de contacto queda registrado en ambos casos, para poder avisarle del radicado.</p></li>
+          <li><strong>Presione "Continuar"</strong> y complete el formulario de la denuncia igual que lo haría el denunciante — la empresa ya queda fija en la suya.</li>
+          <li><strong>Envíe la denuncia.</strong><p>Anote el número de radicado que le muestra la confirmación para poder informarlo a quien reportó, si hace falta.</p></li>
+        </ol>
+
+        <div class="callout ok">
+          <span class="callout-label">Qué pasa después</span>
+          <p>Si se creó una cuenta nueva, el denunciante recibe un correo con sus credenciales para poder ingresar más adelante y hacer seguimiento a su propio reporte desde "Mis Denuncias".</p>
+        </div>
+
+        <h3 class="step-title">Su panel de control</h3>
+        <p>El Dashboard le muestra el total de denuncias que ha montado, cuántas están en proceso o cerradas, cuántas son anónimas, y un desglose por canal de origen para ver por dónde le está llegando más volumen.</p>
+      </section>
+
+      <section class="role" id="referencia" data-section>
+        <span class="kicker">Consulta rápida</span>
+        <h2>Menú por rol</h2>
+        <p class="role-sub">Qué ve cada rol en el menú lateral de la aplicación.</p>
+
+        <div class="table-wrap">
+          <table class="menu-ref">
+            <thead>
+              <tr><th>Sección de menú</th><th>Roles que la ven</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Inicio</td><td class="roles">Denunciante</td></tr>
+              <tr><td>Mis Denuncias</td><td class="roles">Denunciante</td></tr>
+              <tr><td>Dashboard</td><td class="roles">Consultor, Jefe del proceso</td></tr>
+              <tr><td>Por Revisar</td><td class="roles">Consultor, Jefe del proceso</td></tr>
+              <tr><td>Historial</td><td class="roles">Consultor, Jefe del proceso</td></tr>
+              <tr><td>Investigaciones</td><td class="roles">Consultor, Jefe del proceso</td></tr>
+              <tr><td>Gestión de Usuarios</td><td class="roles">Consultor, Jefe del proceso</td></tr>
+              <tr><td>Mi Dashboard (Investigador)</td><td class="roles">Investigador</td></tr>
+              <tr><td>Mis Investigaciones</td><td class="roles">Investigador</td></tr>
+              <tr><td>Mi Dashboard (Registrador)</td><td class="roles">Registrador</td></tr>
+              <tr><td>Montar Denuncia</td><td class="roles">Registrador</td></tr>
+              <tr><td>Manual de Usuario</td><td class="roles">Jefe del proceso</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="step-title">Estados de una denuncia</h3>
+        <table class="states">
+          <thead><tr><th>Estado</th><th>Qué significa</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge-ref">Guardado</span></td><td>Borrador del denunciante, aún no enviado.</td></tr>
+            <tr><td><span class="badge-ref">Enviado</span></td><td>Recién enviada, pendiente de revisión del Consultor.</td></tr>
+            <tr><td><span class="badge-ref">Devuelto</span></td><td>El Consultor pidió correcciones al denunciante.</td></tr>
+            <tr><td><span class="badge-ref">Corregido</span></td><td>El denunciante ya corrigió y vuelve a estar en revisión.</td></tr>
+            <tr><td><span class="badge-ref">Aprobado</span></td><td>Lista para que el Consultor asigne un investigador.</td></tr>
+            <tr><td><span class="badge-ref">Rechazado</span></td><td>Cerrada sin investigación.</td></tr>
+            <tr><td><span class="badge-ref">En investigación</span></td><td>Un investigador la tiene asignada y activa.</td></tr>
+            <tr><td><span class="badge-ref">Pendiente respuesta</span></td><td>El investigador espera respuesta del Consultor.</td></tr>
+            <tr><td><span class="badge-ref">Cerrado</span></td><td>Investigación concluida.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <p class="manual-footer">Canal Ético Corporativo — Manual de usuario interno. Ante cualquier duda sobre su acceso o un caso puntual, contacte al Consultor de su empresa.</p>
+
+    </div>
+  </div>
+</div>

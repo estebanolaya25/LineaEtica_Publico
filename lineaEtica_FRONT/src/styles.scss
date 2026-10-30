@@ -1,0 +1,92 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+:root {
+  --accent:         #486581;
+  --accent-dark:    #334e68;
+  --accent-rgb:     72, 101, 129;
+
+  --app-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --bs-primary:           var(--accent);
+  --bs-primary-rgb:       var(--accent-rgb);
+  --bs-link-color:        var(--accent);
+  --bs-link-color-rgb:    var(--accent-rgb);
+  --bs-link-hover-color:  var(--accent-dark);
+}
+
+body {
+  margin: 0;
+  font-family: var(--app-font);
+  background-color: #f0f4f8;
+  transition: background-color .3s, color .3s;
+}
+
+body.dark-mode {
+  background-color: #0f172a;
+  color: #e2e8f0;
+
+  .card { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+  .text-muted { color: #94a3b8 !important; }
+  .form-control, .form-select {
+    background-color: #334155;
+    border-color: #475569;
+    color: #f1f5f9;
+    &::placeholder { color: #64748b; }
+    &:focus { background-color: #334155; border-color: var(--accent); color: #f1f5f9; }
+  }
+  .input-group-text { background: #475569; border-color: #475569; color: #94a3b8; }
+  .table { color: #e2e8f0; }
+  .table-striped > tbody > tr:nth-of-type(odd) > * { background: rgba(255,255,255,.04); color: #e2e8f0; }
+  .modal-content { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+  .modal-header { border-color: #334155; }
+  .modal-footer { border-color: #334155; }
+  hr { border-color: #334155; }
+  .badge.bg-light { background: #334155 !important; color: #e2e8f0 !important; }
+}
+
+.btn-primary {
+  --bs-btn-bg:                 var(--accent);
+  --bs-btn-border-color:       var(--accent);
+  --bs-btn-hover-bg:           var(--accent-dark);
+  --bs-btn-hover-border-color: var(--accent-dark);
+  --bs-btn-active-bg:          var(--accent-dark);
+  --bs-btn-focus-shadow-rgb:   var(--accent-rgb);
+  --bs-btn-color:              #ffffff;
+  --bs-btn-hover-color:        #ffffff;
+}
+
+.btn-outline-primary {
+  --bs-btn-color:              var(--accent);
+  --bs-btn-border-color:       var(--accent);
+  --bs-btn-hover-bg:           var(--accent);
+  --bs-btn-hover-border-color: var(--accent);
+  --bs-btn-active-bg:          var(--accent-dark);
+  --bs-btn-active-border-color:var(--accent-dark);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.25rem rgba(var(--accent-rgb), 0.25);
+}
+
+a {
+  color: var(--accent);
+  &:hover { color: var(--accent-dark); }
+}
+
+.cdk-overlay-container {
+  position: fixed; z-index: 1050; top: 0; left: 0;
+  width: 100%; height: 100%; pointer-events: none;
+}
+.cdk-overlay-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+}
+.modal-overlay {
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: auto;
+}
+.cdk-overlay-pane { pointer-events: auto; }

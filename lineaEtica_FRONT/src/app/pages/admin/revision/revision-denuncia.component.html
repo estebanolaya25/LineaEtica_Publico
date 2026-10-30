@@ -1,0 +1,337 @@
+<div class="revision-container">
+
+  <div class="revision-header d-flex align-items-center gap-3 mb-4">
+    <button class="btn btn-outline-secondary btn-sm" (click)="volver()">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+    <div class="flex-grow-1">
+      <h5 class="mb-0">Revisión de Denuncia</h5>
+      @if (denuncia) {
+        <small class="text-muted">
+          @if (denuncia.consecutivo) { Radicado #{{ denuncia.consecutivo }} · }
+          <span class="badge estado-badge ms-1" [ngClass]="getEstadoBadge(denuncia.estado)">{{ denuncia.estado }}</span>
+          · {{ denuncia.esAnonimo ? 'Anónima' : 'No anónima' }}
+          @if (!denuncia.esAnonimo && denuncia.usuarioReportante) {
+            · Reportante: <strong>{{ denuncia.usuarioReportante }}</strong>
+          }
+          · {{ denuncia.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}
+        </small>
+      }
+    </div>
+    @if (denuncia && !cargando) {
+      <button class="btn btn-sm btn-pdf-header"
+              (click)="descargarPdf()"
+              [disabled]="pdfGenerando"
+              title="Descargar PDF de la denuncia">
+        @if (pdfGenerando) {
+          <span class="spinner-border spinner-border-sm me-1"></span>Generando...
+        } @else {
+          <i class="bi bi-file-earmark-pdf-fill me-1"></i>Descargar PDF
+        }
+      </button>
+    }
+  </div>
+
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border" style="color:var(--accent)" role="status"></div>
+      <p class="mt-3 text-muted">Cargando denuncia...</p>
+    </div>
+  }
+  @if (error) {
+    <div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}</div>
+  }
+  @if (accionRealizada) {
+    <div class="alert alert-success text-center">
+      <i class="bi bi-check-circle-fill me-2"></i>{{ mensajeAccion }}
+      <div class="text-muted small mt-1">Redirigiendo a la bandeja...</div>
+    </div>
+  }
+
+  @if (!cargando && !error && !accionRealizada && denuncia && formulario) {
+
+    @if (puedeActuar) {
+      <div class="panel-acciones card mb-4">
+        <div class="card-body">
+          <h6 class="mb-3 text-admin">
+            <i class="bi bi-shield-check me-2"></i>Acciones del administrador
+          </h6>
+
+          @if (modoSeleccionCampos) {
+            <div class="alert alert-warning py-2 mb-3">
+              <i class="bi bi-cursor-fill me-2"></i>
+              <strong>Modo selección:</strong>
+              marque los campos o secciones completas que requieren corrección.
+              <span class="badge bg-warning text-dark ms-2">
+                {{ totalCamposSeleccionados }} campo(s)
+              </span>
+            </div>
+          }
+
+          @if (!accionSeleccionada) {
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-success"  (click)="iniciarAccion('aprobar')">
+                <i class="bi bi-check-circle-fill me-1"></i>Aprobar
+              </button>
+              <button class="btn btn-warning"  (click)="iniciarAccion('devolver')">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Devolver
+              </button>
+              <button class="btn btn-danger"   (click)="iniciarAccion('rechazar')">
+                <i class="bi bi-x-circle-fill me-1"></i>Rechazar
+              </button>
+            </div>
+          } @else {
+            <div class="accion-form">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">
+                  @if (accionSeleccionada === 'aprobar') { Comentario (opcional) }
+                  @else { Motivo <span class="text-danger">*</span> }
+                </label>
+                <textarea class="form-control" rows="3" [(ngModel)]="comentarioAdmin"
+                  [placeholder]="accionSeleccionada === 'aprobar'  ? 'Observaciones de la aprobación...' :
+                                 accionSeleccionada === 'devolver'  ? 'Indique qué debe corregir el reportante...' :
+                                 'Motivo del rechazo definitivo...'">
+                </textarea>
+              </div>
+              @if (accionSeleccionada === 'devolver') {
+                <p class="text-muted small mb-3">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Use el <strong>checkbox de sección</strong> para marcar toda una sección,
+                  o marque campo por campo. Puede dejar vacío para devolver con comentario general.
+                </p>
+              }
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm"
+                  [class]="accionSeleccionada === 'aprobar' ? 'btn-success' :
+                            accionSeleccionada === 'devolver' ? 'btn-warning' : 'btn-danger'"
+                  (click)="confirmarAccion()" [disabled]="procesando">
+                  @if (procesando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                  @if (accionSeleccionada === 'aprobar')  { <i class="bi bi-check-circle-fill me-1"></i>Confirmar aprobación }
+                  @if (accionSeleccionada === 'devolver') {
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>Confirmar devolución
+                    @if (totalCamposSeleccionados > 0) { ({{ totalCamposSeleccionados }}) }
+                  }
+                  @if (accionSeleccionada === 'rechazar') { <i class="bi bi-x-circle-fill me-1"></i>Confirmar rechazo }
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="cancelarAccion()" [disabled]="procesando">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else if (puedeAsignarInvestigador) {
+      <div class="panel-acciones card mb-4">
+        <div class="card-body">
+          <h6 class="mb-3 text-admin">
+            <i class="bi bi-search me-2"></i>Derivar a Investigación
+          </h6>
+          @if (!mostrarAsignacion) {
+            <div class="alert alert-info py-2 mb-3">
+              <i class="bi bi-check-circle me-2"></i>
+              Denuncia <strong>aprobada</strong>. Puede iniciar una investigación asignando un investigador.
+              @if (denuncia.comentarioAdmin) {
+                <div class="mt-1 small"><strong>Comentario:</strong> {{ denuncia.comentarioAdmin }}</div>
+              }
+            </div>
+            <button class="btn btn-primary" (click)="iniciarAsignacion()"
+                    [disabled]="investigadores.length === 0">
+              <i class="bi bi-person-plus me-1"></i>
+              {{ investigadores.length === 0 ? 'Sin investigadores disponibles' : 'Asignar Investigador' }}
+            </button>
+          } @else {
+            <div class="accion-form">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Investigador <span class="text-danger">*</span></label>
+                <select class="form-select" [(ngModel)]="idInvestigadorSeleccionado">
+                  <option [ngValue]="null">— Seleccione un investigador —</option>
+                  @for (inv of investigadores; track inv.id) {
+                    <option [ngValue]="inv.id">{{ inv.nombre }} ({{ inv.correo }})</option>
+                  }
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Instrucciones (opcional)</label>
+                <textarea class="form-control" rows="2"
+                          placeholder="Instrucciones para el investigador..."
+                          [(ngModel)]="comentarioAsignacion"></textarea>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-primary"
+                        [disabled]="!idInvestigadorSeleccionado || asignando"
+                        (click)="confirmarAsignacion()">
+                  @if (asignando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                  <i class="bi bi-check me-1"></i>Confirmar asignación
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="cancelarAsignacion()" [disabled]="asignando">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="alert alert-secondary mb-4">
+        <i class="bi bi-info-circle me-2"></i>
+        Esta denuncia tiene estado <strong>{{ denuncia.estado }}</strong> y no requiere acción adicional.
+        @if (denuncia.comentarioAdmin) {
+          <div class="mt-2 small">
+            <strong>Último comentario:</strong> {{ denuncia.comentarioAdmin }}
+          </div>
+        }
+      </div>
+    }
+
+    @for (seccion of formulario.secciones; track seccion.id) {
+      @if (!(esConsultor && esSeccionSoloDefiniciones(seccion))) {
+      <div class="seccion-card card mb-4">
+
+        @if (seccion.mostrarNombre) {
+          <div class="seccion-header" [class.seccion-header--seleccion]="modoSeleccionCampos">
+
+            <div class="seccion-header__info">
+              <h6 class="mb-0">{{ seccion.nombre }}</h6>
+              @if (seccion.descripcion && !esConsultor) { <small>{{ seccion.descripcion }}</small> }
+            </div>
+
+            @if (modoSeleccionCampos && getCamposSeleccionables(seccion).length > 0) {
+              <label class="seccion-select-all" [title]="isSeccionSeleccionada(seccion) ? 'Deseleccionar sección' : 'Seleccionar toda la sección'">
+                <input type="checkbox"
+                       [checked]="isSeccionSeleccionada(seccion)"
+                       [class.indeterminate]="isSeccionIndeterminada(seccion)"
+                       (change)="toggleSeccion(seccion)" />
+                <span class="seccion-select-label">
+                  {{ isSeccionSeleccionada(seccion) ? 'Sección completa ✓' : isSeccionIndeterminada(seccion) ? 'Parcial' : 'Seleccionar sección' }}
+                </span>
+              </label>
+            }
+          </div>
+        }
+
+        <div class="card-body">
+          <div class="row g-3">
+            @for (campo of seccion.campos; track campo.id) {
+              @if (!(campo.tipoCampo === TIPO.LABEL && esConsultor)) {
+
+              @if (campo.tipoCampo !== TIPO.TABLA) {
+                <div [class]="'col-md-' + (campo.col || 12)">
+                  <div class="campo-wrapper"
+                       [class.campo-rechazado]="esCampoRechazado(campo.id, seccion.id)"
+                       [class.campo-seleccionado]="isCampoSeleccionado(campo.id, seccion.id)">
+
+                    @if (modoSeleccionCampos && campo.tipoCampo !== TIPO.LABEL) {
+                      <div class="campo-checkbox-col">
+                        <input type="checkbox" class="form-check-input campo-chk"
+                               [checked]="isCampoSeleccionado(campo.id, seccion.id)"
+                               (change)="toggleCampo(campo.id, seccion.id)" />
+                      </div>
+                    }
+
+                    <div class="campo-content">
+                      @if (campo.tipoCampo === TIPO.LABEL) {
+                        <div class="label-content p-3 rounded"
+                             [innerHTML]="campo.descripcion || campo.nombre"></div>
+                      } @else {
+                        <label class="form-label">
+                          {{ campo.nombre }}
+                          @if (esCampoRechazado(campo.id, seccion.id)) {
+                            <span class="badge bg-danger ms-2 small">Devuelto</span>
+                          }
+                        </label>
+
+                        @if (campo.tipoCampo === TIPO.SELECT_UNICO) {
+                          <div class="valor-campo">
+                            {{ getNombreParametro(campo.tipoParametro, getOpcionCampo(campo.id)) }}
+                          </div>
+                        } @else if (campo.tipoCampo === TIPO.SELECT_MULTIPLE) {
+                          <div class="valor-campo">
+                            {{ getNombreParametrosMulti(campo.tipoParametro, getValoresMulti(campo.id)) || '—' }}
+                          </div>
+                        } @else if (campo.tipoCampo === TIPO.ADJUNTO) {
+                          @if (adjuntosDeCampo(campo.id).length > 0) {
+                            <div class="adjunto-lista-rev">
+                              @for (adj of adjuntosDeCampo(campo.id); track adj.id) {
+                                <button class="adjunto-rev-item btn btn-link p-0 text-start"
+                                        (click)="descargarAdjunto(adj.id, adj.nombreOriginal)"
+                                        [title]="'Descargar: ' + adj.nombreOriginal">
+                                  <i class="bi bi-file-earmark-arrow-down me-1"></i>
+                                  {{ adj.nombreOriginal }}
+                                  <span class="adjunto-rev-size">{{ formatBytes(adj.tamanoBytes) }}</span>
+                                </button>
+                              }
+                            </div>
+                          } @else {
+                            <div class="valor-campo text-muted fst-italic small">Sin archivos adjuntos</div>
+                          }
+                        } @else {
+                          <div class="valor-campo">{{ getValorCampo(campo.id) || '—' }}</div>
+                        }
+                      }
+                    </div>
+                  </div>
+                </div>
+
+              } @else {
+                <div class="col-12">
+                  <div class="campo-wrapper"
+                       [class.campo-rechazado]="esCampoRechazado(campo.id, seccion.id)"
+                       [class.campo-seleccionado]="isCampoSeleccionado(campo.id, seccion.id)">
+
+                    @if (modoSeleccionCampos) {
+                      <div class="campo-checkbox-col">
+                        <input type="checkbox" class="form-check-input campo-chk"
+                               [checked]="isCampoSeleccionado(campo.id, seccion.id)"
+                               (change)="toggleCampo(campo.id, seccion.id)" />
+                      </div>
+                    }
+
+                    <div class="campo-content">
+                      <label class="form-label mb-2">
+                        {{ campo.nombre }}
+                        @if (esCampoRechazado(campo.id, seccion.id)) {
+                          <span class="badge bg-danger ms-2 small">Devuelto</span>
+                        }
+                      </label>
+
+                      @if (getFilasTabla(campo.id).length > 0) {
+                        <div class="table-responsive">
+                          <table class="table table-sm tabla-campo">
+                            <thead>
+                              <tr>
+                                <th>#</th>
+                                @for (hijo of campo.camposHijo; track hijo.id) {
+                                  <th>{{ hijo.nombre }}</th>
+                                }
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (grupo of getFilasTabla(campo.id); track grupo; let gi = $index) {
+                                <tr>
+                                  <td class="text-muted small">{{ gi + 1 }}</td>
+                                  @for (hijo of campo.camposHijo; track hijo.id) {
+                                    <td>{{ getValorFilaTabla(campo.id, grupo, hijo.id) || '—' }}</td>
+                                  }
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
+                      } @else {
+                        <div class="valor-campo text-muted fst-italic small">Sin registros</div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+
+              }
+            }
+          </div>
+        </div>
+      </div>
+      }
+    }
+  }
+</div>

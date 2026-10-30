@@ -1,0 +1,158 @@
+<div class="login-page" [class.dark-mode]="isDarkMode">
+
+  <div class="top-controls">
+    <button class="theme-toggle-btn" (click)="toggleTheme()"
+            [title]="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+      <i class="bi" [class.bi-sun-fill]="isDarkMode" [class.bi-moon-fill]="!isDarkMode"></i>
+    </button>
+  </div>
+
+  <div class="login-layout">
+
+    <div class="hero-panel">
+      <div class="hero-inner">
+
+        <div class="hero-badge">
+          <i class="bi bi-shield-check me-2"></i>Canal oficial de reporte
+        </div>
+
+        <h1 class="hero-title">Canal Ético<br>Corporativo</h1>
+
+        <p class="hero-subtitle">
+          Un canal seguro y confidencial para reportar conductas inapropiadas
+          y promover la integridad en nuestra organización.
+        </p>
+
+        <div class="carousel-wrapper">
+          <div class="carousel-track">
+            @for (img of carouselImages; track $index) {
+              <div class="carousel-slide" [class.active]="$index === activeSlide">
+                <img [src]="img" alt="Canal Ético Corporativo" class="carousel-image" />
+              </div>
+            }
+          </div>
+          <button class="carousel-btn carousel-btn-prev" (click)="prevSlide()" type="button">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button class="carousel-btn carousel-btn-next" (click)="nextSlide()" type="button">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+          <div class="carousel-dots">
+            @for (img of carouselImages; track $index) {
+              <button class="carousel-dot" [class.active]="$index === activeSlide"
+                      (click)="goToSlide($index)" type="button"></button>
+            }
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="login-panel">
+      <div class="login-card">
+
+        <div class="text-center mb-4">
+          <div class="logo-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" class="logo-svg">
+              <rect width="64" height="64" rx="16" fill="#486581"/>
+              <path d="M20 22h24v20a2 2 0 0 1-2 2H22a2 2 0 0 1-2-2V22z" fill="white" opacity=".95"/>
+              <path d="M20 22l5-6h14l5 6H20z" fill="white" opacity=".7"/>
+              <rect x="26" y="29" width="12" height="2" rx="1" fill="#486581"/>
+              <rect x="26" y="34" width="8"  height="2" rx="1" fill="#486581"/>
+            </svg>
+          </div>
+          <p class="logo-label">Canal Ético Corporativo</p>
+        </div>
+
+        <div class="text-center mb-4">
+          <h4 class="login-title mb-1">{{ 'SIGN_IN' | translate }}</h4>
+          <p class="login-subtitle">Ingrese sus credenciales para continuar</p>
+        </div>
+
+        <form [formGroup]="form">
+
+          @if (isLoading) {
+            <div class="d-flex justify-content-center align-items-center mb-3">
+              <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+              &nbsp;<span class="login-subtitle small">Verificando...</span>
+            </div>
+          }
+
+          <div class="form-group mb-3">
+            <label class="form-label fw-semibold small">{{ 'NumeroDocumento' | translate }}</label>
+            <div class="input-icon-wrapper">
+              <i class="bi bi-person-fill input-icon"></i>
+              <input
+                type="text"
+                class="form-control input-with-icon"
+                placeholder="{{ 'NumeroDocumento' | translate }}"
+                formControlName="username"
+              />
+            </div>
+          </div>
+
+          <div class="form-group mb-2">
+            <label class="form-label fw-semibold small">{{ 'PASSWORD' | translate }}</label>
+            <div class="input-icon-wrapper">
+              <i class="bi bi-lock-fill input-icon"></i>
+              <input
+                type="password"
+                class="form-control input-with-icon"
+                placeholder="{{ 'PASSWORD' | translate }}"
+                formControlName="password"
+              />
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end mb-3">
+            <a routerLink="/auth/RecuperarCuenta" class="forgot-link">
+              <i class="bi bi-file-lock2 me-1"></i>{{ 'FORGOT_PASSWORD' | translate }}
+            </a>
+          </div>
+
+          <div class="form-group mb-4">
+            <label class="form-label fw-semibold small">{{ 'IngreseCaptcha' | translate }}</label>
+            <div class="captcha-row mb-2">
+              <canvas id="captchaCanvas" width="180" height="48" class="captcha-canvas"></canvas>
+              <button type="button" class="btn btn-outline-secondary btn-sm captcha-refresh"
+                      (click)="refreshCaptcha()" [title]="'RefrescarCaptcha' | translate">
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
+            </div>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="{{ 'IngreseCaptcha' | translate }}"
+              formControlName="captcha"
+            />
+            @if (form.get('captcha')?.invalid && form.get('captcha')?.touched) {
+              <div class="text-danger small mt-1">{{ 'CampoRequerido' | translate }}</div>
+            }
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-login w-100"
+            [disabled]="!form.valid || isLoading"
+            (click)="login()"
+          >
+            @if (!isLoading) {
+              <span><i class="bi bi-box-arrow-in-right me-2"></i>{{ 'LOGIN' | translate }}</span>
+            } @else {
+              <span><span class="spinner-border spinner-border-sm me-2"></span>Cargando...</span>
+            }
+          </button>
+
+        </form>
+
+        <div class="text-center mt-3">
+          <span class="login-subtitle small">¿No tiene cuenta? </span>
+          <a routerLink="/auth/registro" class="forgot-link">Crear cuenta</a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,180 @@
+<div class="usuarios-container">
+
+  <div class="usuarios-header d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h5 class="mb-0">Gestión de Usuarios</h5>
+      <small class="text-muted">Consultores e Investigadores del sistema</small>
+    </div>
+    @if (vista === 'lista') {
+      <button class="btn btn-primary btn-sm" (click)="iniciarNuevo()">
+        <i class="bi bi-person-plus-fill me-1"></i>Nuevo usuario
+      </button>
+    }
+  </div>
+
+  @if (mensaje) {
+    <div class="alert alert-success alert-dismissible">
+      <i class="bi bi-check-circle-fill me-2"></i>{{ mensaje }}
+      <button type="button" class="btn-close" (click)="mensaje = null"></button>
+    </div>
+  }
+
+  @if (error) {
+    <div class="alert alert-danger alert-dismissible">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+      <button type="button" class="btn-close" (click)="error = null"></button>
+    </div>
+  }
+
+  @if (vista === 'lista') {
+    @if (cargando) {
+      <div class="text-center py-5">
+        <div class="spinner-border" style="color:var(--accent)" role="status"></div>
+        <p class="mt-3 text-muted">Cargando usuarios...</p>
+      </div>
+    } @else if (usuarios.length === 0) {
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-people display-4 d-block mb-3"></i>
+        No hay usuarios registrados.
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Tipo</th>
+              <th>Empresa</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of usuarios; track u.id) {
+              <tr>
+                <td>
+                  <div class="fw-semibold">{{ u.nombres }} {{ u.apellidos }}</div>
+                  <small class="text-muted">{{ u.identificacion }}</small>
+                </td>
+                <td>{{ u.email }}</td>
+                <td>
+                  <span class="badge" [ngClass]="badgeTipo(u.idTipoUsuario)">
+                    {{ u.nombreTipoUsuario }}
+                  </span>
+                </td>
+                <td>{{ u.nombreEmpresa ?? '—' }}</td>
+                <td>
+                  @if (u.activo) {
+                    <span class="badge bg-success">Activo</span>
+                  } @else {
+                    <span class="badge bg-secondary">Inactivo</span>
+                  }
+                </td>
+                <td class="text-end">
+                  <button class="btn btn-sm btn-outline-secondary" (click)="iniciarEditar(u)">
+                    <i class="bi bi-pencil-fill"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+  @if (vista === 'nuevo' || vista === 'editar') {
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="bi {{ vista === 'nuevo' ? 'bi-person-plus-fill' : 'bi-pencil-fill' }} me-2"></i>
+          {{ vista === 'nuevo' ? 'Nuevo usuario' : 'Editar usuario' }}
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <label class="form-label">Nombres <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="form.nombres" placeholder="Nombres completos">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Apellidos</label>
+            <input type="text" class="form-control" [(ngModel)]="form.apellidos" placeholder="Apellidos">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Tipo de documento</label>
+            <select class="form-select" [(ngModel)]="form.tipoIdentificacion">
+              @for (t of tiposDocumento; track t.id) {
+                <option [value]="t.id">{{ t.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Número de documento</label>
+            <input type="text" class="form-control" [(ngModel)]="form.identificacion" placeholder="Número">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Tipo de usuario <span class="text-danger">*</span></label>
+            <select class="form-select" [(ngModel)]="form.idTipoUsuario" (ngModelChange)="onTipoUsuarioChange()">
+              @for (t of tiposUsuario; track t.id) {
+                <option [value]="t.id">{{ t.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">
+              Empresa
+              @if (form.idTipoUsuario !== 4) {
+                <span class="text-danger">*</span>
+              }
+            </label>
+            <select class="form-select" [(ngModel)]="form.idEmpresa" [disabled]="empresaDeshabilitada()">
+              <option [ngValue]="null">
+                {{ form.idTipoUsuario === 4 ? 'No aplica (ve todas)' : '-- Seleccione --' }}
+              </option>
+              @for (e of empresas; track e.id) {
+                <option [value]="e.id">{{ e.nombre }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-md-8">
+            <label class="form-label">Correo electrónico <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" [(ngModel)]="form.email" placeholder="correo@empresa.com">
+            <div class="form-text">La contraseña temporal se enviará a este correo.</div>
+          </div>
+
+          @if (vista === 'editar') {
+            <div class="col-md-4 d-flex align-items-center">
+              <div class="form-check form-switch mt-3">
+                <input class="form-check-input" type="checkbox" role="switch" id="activoSwitch" [(ngModel)]="form.activo">
+                <label class="form-check-label" for="activoSwitch">Usuario activo</label>
+              </div>
+            </div>
+          }
+
+        </div>
+      </div>
+      <div class="card-footer d-flex gap-2 justify-content-end">
+        <button class="btn btn-outline-secondary" (click)="cancelar()" [disabled]="procesando">
+          Cancelar
+        </button>
+        <button class="btn btn-primary" (click)="guardar()" [disabled]="procesando">
+          @if (procesando) {
+            <span class="spinner-border spinner-border-sm me-1"></span>Guardando...
+          } @else {
+            <i class="bi bi-floppy-fill me-1"></i>Guardar
+          }
+        </button>
+      </div>
+    </div>
+  }
+
+</div>

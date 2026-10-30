@@ -1,0 +1,145 @@
+<header class="topbar" [class.topbar--dark]="theme.isDarkMode()">
+
+  <button class="topbar__toggle" (click)="layoutState.toggle()">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <span class="topbar__title">
+    <i class="bi bi-shield-lock-fill me-2" style="color: var(--accent)"></i>
+    Canal Ético Corporativo
+  </span>
+
+  <div class="topbar__actions" (click)="stopProp($event)">
+
+    <div class="topbar__picker-wrap" [class.open]="notifOpen">
+      <button class="topbar__action-btn topbar__notif-btn"
+              title="Notificaciones"
+              (click)="toggleNotif($event)">
+        <i class="bi bi-bell-fill"></i>
+        @if (notif.noLeidas() > 0) {
+          <span class="topbar__badge">{{ notif.noLeidas() > 9 ? '9+' : notif.noLeidas() }}</span>
+        }
+      </button>
+
+      <div class="topbar__dropdown notif-dropdown">
+        <div class="notif-dropdown__header">
+          <span class="notif-dropdown__title">
+            <i class="bi bi-bell-fill me-2" style="color:var(--accent)"></i>Notificaciones
+          </span>
+          @if (notif.items().length > 0) {
+            <button class="notif-marcar-todas" (click)="marcarTodas($event)">
+              Marcar todas
+            </button>
+          }
+        </div>
+
+        @if (notif.items().length === 0) {
+          <div class="notif-dropdown__empty">
+            <i class="bi bi-bell-slash"></i>
+            <p class="mb-0 mt-2">Sin notificaciones nuevas</p>
+          </div>
+        } @else {
+          <ul class="notif-dropdown__list">
+            @for (n of notif.items(); track n.id) {
+              <li class="notif-item notif-item--{{ n.tipo }}"
+                  [class.notif-item--clickable]="n.idFormularioUsuario"
+                  (click)="abrirDenuncia($event, n)">
+                <span class="notif-item__icon">
+                  @switch (n.tipo) {
+                    @case ('success') { <i class="bi bi-check-circle-fill"></i> }
+                    @case ('warning') { <i class="bi bi-exclamation-triangle-fill"></i> }
+                    @case ('danger')  { <i class="bi bi-x-circle-fill"></i> }
+                    @default          { <i class="bi bi-info-circle-fill"></i> }
+                  }
+                </span>
+                <span class="notif-item__body">
+                  <span class="notif-item__msg">{{ n.mensaje }}</span>
+                  <span class="notif-item__time">{{ n.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+                </span>
+                @if (n.idFormularioUsuario) {
+                  <i class="bi bi-chevron-right notif-item__arrow"></i>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+
+    <div class="topbar__sep"></div>
+
+    <div class="topbar__picker-wrap" [class.open]="colorPickerOpen">
+      <button class="topbar__action-btn" title="Cambiar color" (click)="openColor($event)">
+        <span class="topbar__color-dot" [style.background]="theme.colorTheme().accent"></span>
+        <i class="bi bi-palette-fill ms-1" style="font-size:.85rem"></i>
+      </button>
+      <div class="topbar__dropdown color-dropdown">
+        <div class="dropdown-label">Color del sistema</div>
+        <div class="color-grid">
+          @for (t of colorThemes; track t.id) {
+            <button class="color-swatch"
+                    [title]="t.label"
+                    [style.background]="t.accent"
+                    [class.active]="theme.colorTheme().id === t.id"
+                    (click)="pickColor(t)">
+              @if (theme.colorTheme().id === t.id) {
+                <i class="bi bi-check2 text-white"></i>
+              }
+            </button>
+          }
+        </div>
+        <div class="color-label-row">
+          @for (t of colorThemes; track t.id) {
+            <span class="color-name"
+                  [class.active]="theme.colorTheme().id === t.id"
+                  [style.color]="theme.colorTheme().id === t.id ? t.accent : ''">
+              {{ t.label }}
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar__sep"></div>
+
+    <div class="topbar__picker-wrap" [class.open]="fontPickerOpen">
+      <button class="topbar__action-btn" title="Cambiar fuente" (click)="openFont($event)">
+        <i class="bi bi-fonts"></i>
+      </button>
+      <div class="topbar__dropdown font-dropdown">
+        <div class="dropdown-label">Tipografía</div>
+        @for (f of fontOptions; track f.id) {
+          <button class="font-option"
+                  [class.active]="fonts.currentFont().id === f.id"
+                  [style.font-family]="f.stack"
+                  (click)="pickFont(f)">
+            <span>{{ f.label }}</span>
+            @if (fonts.currentFont().id === f.id) {
+              <i class="bi bi-check2-circle"></i>
+            }
+          </button>
+        }
+      </div>
+    </div>
+
+    <button class="topbar__action-btn"
+            [title]="theme.isDarkMode() ? 'Modo claro' : 'Modo oscuro'"
+            (click)="theme.toggleDark()">
+      <i class="bi" [class.bi-sun-fill]="theme.isDarkMode()" [class.bi-moon-fill]="!theme.isDarkMode()"></i>
+    </button>
+
+    <div class="topbar__sep"></div>
+
+    <button class="topbar__action-btn" title="Cambiar contraseña" (click)="cambiarPassword()">
+      <i class="bi bi-key-fill"></i>
+    </button>
+
+    <div class="topbar__sep"></div>
+
+    <button class="topbar__logout" (click)="logout()">
+      <i class="bi bi-box-arrow-right me-1"></i>
+      <span class="topbar__logout-label">Salir</span>
+    </button>
+
+  </div>
+</header>

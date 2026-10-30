@@ -1,0 +1,332 @@
+<div class="inv-detalle-container">
+
+  <div class="inv-detalle-header d-flex align-items-center gap-3 mb-4">
+    <button class="btn btn-outline-secondary btn-sm" (click)="volver()">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+    <div class="flex-grow-1">
+      <h5 class="mb-0"><i class="bi bi-search me-2"></i>Detalle de Investigación
+        @if (esDuenoProceso) {
+          <span class="badge ms-2 bg-secondary" style="font-size:0.72rem">Solo lectura</span>
+        }
+      </h5>
+      @if (denuncia) {
+        <small class="text-muted">
+          @if (denuncia.consecutivo) { Radicado #{{ denuncia.consecutivo }} · }
+          <span class="badge ms-1" [ngClass]="getEstadoBadge(denuncia.estado)">{{ denuncia.estado }}</span>
+          · {{ denuncia.esAnonimo ? 'Anónima' : 'No anónima' }}
+          @if (denuncia.nombreInvestigador) {
+            · <i class="bi bi-person me-1"></i>{{ denuncia.nombreInvestigador }}
+          }
+        </small>
+      }
+    </div>
+  </div>
+
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border" style="color:var(--accent)"></div>
+      <p class="mt-3 text-muted">Cargando...</p>
+    </div>
+  }
+
+  @if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  }
+
+  @if (mensajeAccion) {
+    <div class="alert alert-success"><i class="bi bi-check-circle-fill me-2"></i>{{ mensajeAccion }}</div>
+  }
+
+  @if (!cargando && !error && denuncia && formulario) {
+    <div class="row g-4">
+
+      <div class="col-lg-7">
+        <div class="card card-formulario">
+          <div class="card-header">
+            <i class="bi bi-file-text me-2"></i>Contenido de la Denuncia
+          </div>
+          <div class="card-body">
+
+            @if (denuncia.comentarioAdmin) {
+              <div class="alert alert-info py-2 mb-3">
+                <strong><i class="bi bi-chat-left-text me-1"></i>Nota al derivar:</strong>
+                {{ denuncia.comentarioAdmin }}
+              </div>
+            }
+
+            @for (seccion of formulario.secciones; track seccion.id) {
+              <div class="seccion-bloque mb-4">
+                @if (seccion.mostrarNombre) {
+                  <h6 class="seccion-titulo">{{ seccion.nombre }}</h6>
+                }
+                @if (seccion.descripcion) {
+                  <p class="text-muted small mb-2">{{ seccion.descripcion }}</p>
+                }
+
+                @for (campo of seccion.campos; track campo.id) {
+                  @if (campo.tipoCampo !== TIPO.LABEL) {
+                    <div class="campo-lectura mb-3">
+                      <label class="campo-label">{{ campo.nombre }}</label>
+
+                      @switch (campo.tipoCampo) {
+                        @case (TIPO.SELECT_UNICO) {
+                          <p class="campo-valor">{{ getNombreParametro(campo.tipoParametro, getOpcionCampo(campo.id)) }}</p>
+                        }
+                        @case (TIPO.SELECT_MULTIPLE) {
+                          <p class="campo-valor">{{ getNombresMulti(campo.tipoParametro, getValoresMulti(campo.id)) || '—' }}</p>
+                        }
+                        @case (TIPO.TABLA) {
+                          @let filas = getFilasTabla(campo.id);
+                          @if (filas.length > 0) {
+                            <div class="table-responsive mt-1">
+                              <table class="table table-sm table-bordered">
+                                <thead>
+                                  <tr>
+                                    @for (hijo of campo.camposHijo; track hijo.id) {
+                                      <th>{{ hijo.nombre }}</th>
+                                    }
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  @for (fila of filas; track fila) {
+                                    <tr>
+                                      @for (hijo of campo.camposHijo; track hijo.id) {
+                                        <td>{{ getValorFilaTabla(campo.id, fila, hijo.id) || '—' }}</td>
+                                      }
+                                    </tr>
+                                  }
+                                </tbody>
+                              </table>
+                            </div>
+                          } @else {
+                            <p class="campo-valor">—</p>
+                          }
+                        }
+                        @case (TIPO.ADJUNTO) {
+                          <p class="campo-valor text-muted fst-italic small">[Ver adjuntos de la denuncia]</p>
+                        }
+                        @default {
+                          <p class="campo-valor">{{ getValorCampo(campo.id) || '—' }}</p>
+                        }
+                      }
+                    </div>
+                  } @else {
+                    <div [innerHTML]="campo.descripcion" class="mb-2 text-muted small"></div>
+                  }
+                }
+              </div>
+            }
+
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+
+        @if (denuncia.nombreInvestigador) {
+          <div class="card card-investigador mb-3">
+            <div class="card-body py-3">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-person-badge fs-5 text-primary"></i>
+                <div>
+                  <div class="fw-semibold">{{ denuncia.nombreInvestigador }}</div>
+                  @if (denuncia.correoInvestigador) {
+                    <div class="text-muted small">{{ denuncia.correoInvestigador }}</div>
+                  }
+                </div>
+                <span class="ms-auto badge" [ngClass]="getEstadoBadge(denuncia.estado)">{{ denuncia.estado }}</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <div class="card card-seguimiento">
+          <div class="card-header">
+            <i class="bi bi-chat-dots me-2"></i>Seguimiento del investigador
+            <span class="badge bg-primary ms-2">{{ denuncia.seguimientos.length }}</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="seguimiento-lista">
+              @if (denuncia.seguimientos.length === 0) {
+                <p class="text-center text-muted py-4 mb-0">
+                  <i class="bi bi-chat-left d-block mb-2" style="font-size:1.8rem;opacity:.3"></i>
+                  Sin comentarios de seguimiento aún.
+                </p>
+              }
+              @for (seg of denuncia.seguimientos; track seg.id) {
+                <div class="seg-item">
+                  <div class="seg-meta">
+                    <i class="bi bi-person-circle me-1"></i>{{ seg.usuario }}
+                    <span class="ms-auto text-muted small">{{ seg.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+                  </div>
+                  <div class="seg-texto">{{ seg.comentario }}</div>
+
+                  @if (seg.adjuntos && seg.adjuntos.length > 0) {
+                    <div class="seg-adjuntos mt-2">
+                      @for (adj of seg.adjuntos; track adj.id) {
+                        <button type="button"
+                                class="seg-adj-chip"
+                                [title]="adj.nombreOriginal + ' · ' + formatBytes(adj.tamanoBytes)"
+                                (click)="descargarAdjunto(adj.id, adj.nombreOriginal)">
+                          <i class="bi bi-file-earmark-arrow-down me-1"></i>
+                          <span class="text-truncate" style="max-width:140px">{{ adj.nombreOriginal }}</span>
+                          <span class="ms-1 text-muted" style="font-size:0.72rem">{{ formatBytes(adj.tamanoBytes) }}</span>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      @if (investigacionActiva) {
+        <div class="col-lg-5">
+
+          @if (pendienteAnalista && !esDuenoProceso) {
+            <div class="card border-warning mb-3">
+              <div class="card-header bg-warning bg-opacity-10 text-warning-emphasis">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>El Investigador solicita información
+              </div>
+              <div class="card-body">
+                @if (denuncia.seguimientos.length > 0) {
+                  <div class="alert alert-light border mb-3">
+                    <strong>Última consulta:</strong>
+                    <p class="mb-0 mt-1">{{ denuncia.seguimientos[denuncia.seguimientos.length - 1].comentario }}</p>
+                  </div>
+                }
+                @if (!mostrarResponder) {
+                  <p class="text-muted small">Responde al investigador con la información que solicitó. Puedes adjuntar documentos si es necesario.</p>
+                  <button class="btn btn-warning btn-sm w-100" (click)="mostrarResponder = true">
+                    <i class="bi bi-reply-fill me-1"></i>Responder al Investigador
+                  </button>
+                } @else {
+                  <div class="mb-2">
+                    <label class="form-label fw-semibold">Respuesta <span class="text-danger">*</span></label>
+                    <textarea class="form-control form-control-sm" rows="4"
+                              placeholder="Escribe la respuesta para el investigador..."
+                              [(ngModel)]="comentarioRespuesta">
+                    </textarea>
+                  </div>
+                  <div class="mb-2">
+                    <label class="adj-upload-label btn btn-outline-secondary btn-sm">
+                      <i class="bi bi-paperclip me-1"></i>Adjuntar archivos
+                      <input type="file" multiple hidden (change)="onArchivosRespuestaChange($event)">
+                    </label>
+                    @if (archivosRespuesta.length > 0) {
+                      <div class="adj-chips mt-1">
+                        @for (f of archivosRespuesta; track f.name; let i = $index) {
+                          <span class="adj-chip">
+                            <i class="bi bi-file-earmark me-1"></i>{{ f.name }}
+                            <button type="button" class="btn-close btn-close-xs ms-1"
+                                    (click)="quitarArchivoRespuesta(i)"></button>
+                          </span>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm flex-grow-1" (click)="mostrarResponder = false">Cancelar</button>
+                    <button class="btn btn-warning btn-sm flex-grow-1"
+                            [disabled]="!comentarioRespuesta.trim() || enviandoRespuesta"
+                            (click)="confirmarRespuesta()">
+                      @if (enviandoRespuesta) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                      <i class="bi bi-send me-1"></i>Enviar respuesta
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="bi bi-chat-left-text me-2"></i>Agregar Comentario
+            </div>
+            <div class="card-body">
+              @if (!mostrarComentario) {
+                <p class="text-muted small">Deja un comentario de seguimiento visible para el investigador. No cambia el estado de la investigación.</p>
+                <button class="btn btn-outline-secondary btn-sm w-100" (click)="mostrarComentario = true">
+                  <i class="bi bi-chat-left-text me-1"></i>Agregar comentario
+                </button>
+              } @else {
+                <div class="mb-2">
+                  <label class="form-label fw-semibold">Comentario <span class="text-danger">*</span></label>
+                  <textarea class="form-control form-control-sm" rows="3"
+                            placeholder="Escribe tu comentario..."
+                            [(ngModel)]="textoComentario">
+                  </textarea>
+                </div>
+                <div class="mb-2">
+                  <label class="adj-upload-label btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-paperclip me-1"></i>Adjuntar archivos
+                    <input type="file" multiple hidden (change)="onArchivosComentarioChange($event)">
+                  </label>
+                  @if (archivosComentario.length > 0) {
+                    <div class="adj-chips mt-1">
+                      @for (f of archivosComentario; track f.name; let i = $index) {
+                        <span class="adj-chip">
+                          <i class="bi bi-file-earmark me-1"></i>{{ f.name }}
+                          <button type="button" class="btn-close btn-close-xs ms-1"
+                                  (click)="quitarArchivoComentario(i)"></button>
+                        </span>
+                      }
+                    </div>
+                  }
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-secondary btn-sm flex-grow-1" (click)="mostrarComentario = false">Cancelar</button>
+                  <button class="btn btn-primary btn-sm flex-grow-1"
+                          [disabled]="!textoComentario.trim() || enviandoComentario"
+                          (click)="confirmarComentario()">
+                    @if (enviandoComentario) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                    <i class="bi bi-send me-1"></i>Enviar comentario
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+
+          @if (!esDuenoProceso) {
+            <div class="card mb-3">
+              <div class="card-header">
+                <i class="bi bi-arrow-counterclockwise me-2"></i>Devolver al Denunciante
+              </div>
+              <div class="card-body">
+                @if (!mostrarDevolver) {
+                  <p class="text-muted small">Devuelve la denuncia al reportante para que aporte información adicional.</p>
+                  <button class="btn btn-outline-secondary btn-sm w-100" (click)="mostrarDevolver = true">
+                    <i class="bi bi-reply me-1"></i>Devolver al denunciante
+                  </button>
+                } @else {
+                  <div class="mb-2">
+                    <label class="form-label fw-semibold">Motivo / qué información necesita <span class="text-danger">*</span></label>
+                    <textarea class="form-control form-control-sm" rows="3"
+                              placeholder="Explica al denunciante qué información adicional debe aportar..."
+                              [(ngModel)]="comentarioDevolver">
+                    </textarea>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm flex-grow-1" (click)="mostrarDevolver = false">Cancelar</button>
+                    <button class="btn btn-secondary btn-sm flex-grow-1"
+                            [disabled]="!comentarioDevolver.trim() || enviandoDevolver"
+                            (click)="confirmarDevolver()">
+                      @if (enviandoDevolver) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                      <i class="bi bi-send me-1"></i>Confirmar devolución
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+        </div>
+      }
+
+    </div>
+  }
+</div>

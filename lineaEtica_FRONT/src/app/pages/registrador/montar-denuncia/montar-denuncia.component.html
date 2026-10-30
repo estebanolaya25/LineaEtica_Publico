@@ -1,0 +1,110 @@
+<div class="montar-denuncia-container">
+
+  @if (!idEmpresa) {
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      Su usuario no tiene una empresa asignada. Contacte al administrador antes de montar denuncias.
+    </div>
+  }
+
+  @if (paso === 1 && idEmpresa) {
+    <div class="paso-correo">
+      <div class="mb-4">
+        <h4 class="mb-0">
+          <i class="bi bi-envelope-plus-fill me-2"></i>Montar Denuncia
+        </h4>
+        <small class="text-muted">
+          Registre una denuncia recibida por un canal externo (correo, WhatsApp, etc.).
+        </small>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <label class="form-label">Correo del denunciante</label>
+          <div class="input-group mb-3">
+            <input
+              type="email"
+              class="form-control"
+              placeholder="correo@ejemplo.com"
+              [(ngModel)]="correo"
+              (keyup.enter)="buscar()"
+              [disabled]="buscando" />
+            <button class="btn btn-primary" type="button" (click)="buscar()" [disabled]="!correo.trim() || buscando">
+              @if (buscando) {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              Buscar
+            </button>
+          </div>
+
+          @if (errorBusqueda) {
+            <div class="alert alert-danger">{{ errorBusqueda }}</div>
+          }
+
+          @if (resultadoBusqueda) {
+            @if (resultadoBusqueda.existe) {
+              <div class="alert alert-info">
+                <i class="bi bi-person-check-fill me-2"></i>
+                Usuario existente: <b>{{ resultadoBusqueda.nombre || resultadoBusqueda.correo }}</b>.
+                La denuncia quedará asociada a esta cuenta.
+              </div>
+            } @else {
+              <div class="alert alert-warning">
+                <i class="bi bi-person-plus-fill me-2"></i>
+                No existe un usuario con este correo. Se creará una cuenta nueva para el denunciante.
+              </div>
+            }
+
+            <label class="form-label">Canal de origen</label>
+            <select class="form-select mb-3" [(ngModel)]="canalOrigen">
+              <option value="" disabled selected>Seleccione el canal por el que llegó la denuncia</option>
+              @for (canal of canales; track canal) {
+                <option [value]="canal">{{ canal }}</option>
+              }
+            </select>
+
+            <label class="form-label">Tipo de denuncia</label>
+            <small class="d-block text-muted mb-2">
+              Según lo que la persona haya compartido en el correo/WhatsApp: si dio detalles que la identifican (nombre, cargo, área) use No Anónima; si no, use Anónima. El correo de contacto ya quedó registrado de todas formas.
+            </small>
+            <div class="btn-group w-100 mb-3" role="group">
+              <input type="radio" class="btn-check" id="tipoNoAnonimo" [(ngModel)]="tipoDenuncia" value="no-anonimo" />
+              <label class="btn btn-outline-primary" for="tipoNoAnonimo">
+                <i class="bi bi-person-lines-fill me-1"></i>No Anónima
+              </label>
+
+              <input type="radio" class="btn-check" id="tipoAnonimo" [(ngModel)]="tipoDenuncia" value="anonimo" />
+              <label class="btn btn-outline-primary" for="tipoAnonimo">
+                <i class="bi bi-incognito me-1"></i>Anónima
+              </label>
+            </div>
+
+            <button class="btn btn-success" type="button" (click)="continuar()" [disabled]="!canalOrigen">
+              Continuar <i class="bi bi-chevron-right ms-1"></i>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (paso === 2 && idEmpresa) {
+    <div class="mb-3">
+      <button class="btn btn-outline-secondary btn-sm" (click)="volverPaso1()">
+        <i class="bi bi-arrow-left"></i> Cambiar correo/canal
+      </button>
+      <span class="ms-2 text-muted">
+        Montando denuncia {{ tipoDenuncia === 'anonimo' ? 'Anónima' : 'No Anónima' }} para: <b>{{ correo }}</b> (canal: {{ canalOrigen }})
+      </span>
+    </div>
+
+    <app-crear-denuncia
+      [modoRegistrador]="true"
+      [correoDestino]="correo"
+      [canalOrigen]="canalOrigen"
+      [idFormularioRegistrador]="idFormularioSeleccionado"
+      [idEmpresaRegistrador]="idEmpresa">
+    </app-crear-denuncia>
+  }
+
+</div>

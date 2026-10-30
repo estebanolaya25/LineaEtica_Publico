@@ -1,0 +1,96 @@
+$primary: #486581;
+
+.mis-denuncias-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.page-header {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border-left: 4px solid $primary;
+}
+
+.page-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.empty-state {
+  background: white;
+  border-radius: 12px;
+  padding: 3rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+table {
+  thead th {
+    background: #f0f4f8;
+    color: $primary;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  tbody tr {
+    vertical-align: middle;
+
+    &:hover { background: #f8fafc; }
+  }
+}
+
+.tipo-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 500;
+
+  &.anonima {
+    background: #ebf4ff;
+    color: #2b6cb0;
+  }
+
+  &.no-anonima {
+    background: #faf5ff;
+    color: #6b46c1;
+  }
+}
+
+.estado-badge {
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.badge-creado    { background: #e2e8f0; color: #4a5568; }
+.badge-guardado  { background: #bee3f8; color: #2a69ac; }
+.badge-enviado   { background: #c6f6d5; color: #276749; }
+.badge-corregido { background: #fefcbf; color: #975a16; }
+.badge-devuelto  { background: #fbd38d; color: #744210; }
+.badge-aprobado  { background: #c6f6d5; color: #22543d; }
+.badge-rechazado { background: #fed7d7; color: #9b2c2c; }
+.badge-cerrado   { background: #e2e8f0; color: #718096; }
+
+.btn-pdf {
+  background: #fff5f5;
+  border: 1.5px solid #fc8181;
+  color: #c53030;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover:not(:disabled) {
+    background: #fed7d7;
+    border-color: #e53e3e;
+    color: #9b2c2c;
+  }
+
+  &:disabled { opacity: 0.65; cursor: not-allowed; }
+}

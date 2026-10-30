@@ -1,0 +1,148 @@
+<div class="registro-page">
+
+  <div class="registro-wrapper">
+    <div class="registro-card">
+
+      <div class="text-center mb-4">
+        <div class="logo-icon-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" class="logo-svg">
+            <rect width="64" height="64" rx="16" fill="#486581"/>
+            <path d="M20 22h24v20a2 2 0 0 1-2 2H22a2 2 0 0 1-2-2V22z" fill="white" opacity=".95"/>
+            <path d="M20 22l5-6h14l5 6H20z" fill="white" opacity=".7"/>
+            <rect x="26" y="29" width="12" height="2" rx="1" fill="#486581"/>
+            <rect x="26" y="34" width="8"  height="2" rx="1" fill="#486581"/>
+          </svg>
+        </div>
+        <p class="logo-label">Canal Ético Corporativo</p>
+      </div>
+
+      @if (registroExitoso) {
+        <div class="text-center py-3">
+          <div class="success-icon mb-3">
+            <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+          </div>
+          <h5 class="mb-2">¡Cuenta creada exitosamente!</h5>
+          <p class="text-muted mb-4">Ya puede ingresar con su correo y contraseña.</p>
+          <button class="btn btn-login w-100" (click)="irAlLogin()">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Ir al inicio de sesión
+          </button>
+        </div>
+      }
+
+      @if (!registroExitoso) {
+        <div class="text-center mb-4">
+          <h4 class="login-title mb-1">Crear cuenta</h4>
+          <p class="login-subtitle">Complete el formulario para registrarse</p>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="registro()">
+
+          @if (errorMessage) {
+            <div class="alert alert-danger py-2 mb-3 small">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ errorMessage }}
+            </div>
+          }
+
+          <div class="form-group mb-3">
+            <label class="form-label fw-semibold small">Nombre completo</label>
+            <div class="input-icon-wrapper">
+              <i class="bi bi-person-fill input-icon"></i>
+              <input type="text" class="form-control input-with-icon"
+                     placeholder="Nombre completo"
+                     formControlName="nombre"
+                     [class.is-invalid]="f['nombre'].invalid && f['nombre'].touched" />
+            </div>
+            @if (f['nombre'].invalid && f['nombre'].touched) {
+              <div class="text-danger small mt-1">
+                @if (f['nombre'].errors?.['required']) { El nombre es requerido. }
+                @else if (f['nombre'].errors?.['minlength']) { Mínimo 3 caracteres. }
+              </div>
+            }
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label fw-semibold small">Correo electrónico</label>
+            <div class="input-icon-wrapper">
+              <i class="bi bi-envelope-fill input-icon"></i>
+              <input type="email" class="form-control input-with-icon"
+                     placeholder="correo@ejemplo.com"
+                     formControlName="correo"
+                     [class.is-invalid]="f['correo'].invalid && f['correo'].touched" />
+            </div>
+            @if (f['correo'].invalid && f['correo'].touched) {
+              <div class="text-danger small mt-1">
+                @if (f['correo'].errors?.['required']) { El correo es requerido. }
+                @else if (f['correo'].errors?.['email']) { Ingrese un correo válido. }
+              </div>
+            }
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label fw-semibold small">Contraseña</label>
+            <div class="input-icon-wrapper">
+              <i class="bi bi-lock-fill input-icon"></i>
+              <input type="password" class="form-control input-with-icon"
+                     placeholder="Mínimo 8 caracteres"
+                     formControlName="clave"
+                     [class.is-invalid]="f['clave'].invalid && f['clave'].touched" />
+            </div>
+            @if (f['clave'].invalid && f['clave'].touched) {
+              <div class="text-danger small mt-1">
+                @if (f['clave'].errors?.['required']) { La contraseña es requerida. }
+                @else if (f['clave'].errors?.['minlength']) { Mínimo 8 caracteres. }
+              </div>
+            }
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label fw-semibold small">Confirmar contraseña</label>
+            <div class="input-icon-wrapper">
+              <i class="bi bi-lock-fill input-icon"></i>
+              <input type="password" class="form-control input-with-icon"
+                     placeholder="Repita la contraseña"
+                     formControlName="confirmarClave"
+                     [class.is-invalid]="f['confirmarClave'].touched && form.errors?.['passwordsMismatch']" />
+            </div>
+            @if (f['confirmarClave'].touched && form.errors?.['passwordsMismatch']) {
+              <div class="text-danger small mt-1">Las contraseñas no coinciden.</div>
+            }
+          </div>
+
+          <div class="form-group mb-4">
+            <label class="form-label fw-semibold small">Código de verificación</label>
+            <div class="captcha-row mb-2">
+              <canvas id="captchaCanvasRegistro" width="180" height="48" class="captcha-canvas"></canvas>
+              <button type="button" class="btn btn-outline-secondary btn-sm captcha-refresh"
+                      (click)="refreshCaptcha()" title="Refrescar código">
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
+            </div>
+            <input type="text" class="form-control"
+                   placeholder="Ingrese el código"
+                   formControlName="captcha" />
+            @if (f['captcha'].invalid && f['captcha'].touched) {
+              <div class="text-danger small mt-1">El código de verificación es requerido.</div>
+            }
+          </div>
+
+          <button type="submit" class="btn btn-login w-100"
+                  [disabled]="form.invalid || isLoading">
+            @if (!isLoading) {
+              <span><i class="bi bi-person-plus-fill me-2"></i>Crear cuenta</span>
+            } @else {
+              <span><span class="spinner-border spinner-border-sm me-2"></span>Registrando...</span>
+            }
+          </button>
+
+        </form>
+
+        <div class="text-center mt-3">
+          <span class="login-subtitle small">¿Ya tiene cuenta? </span>
+          <a routerLink="/auth/login" class="forgot-link">Iniciar sesión</a>
+        </div>
+      }
+
+    </div>
+  </div>
+
+</div>

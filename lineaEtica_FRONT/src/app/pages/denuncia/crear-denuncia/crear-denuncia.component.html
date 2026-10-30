@@ -1,0 +1,482 @@
+<div class="denuncia-container">
+
+  <div class="denuncia-header">
+    <button class="btn btn-outline-secondary btn-sm me-3" (click)="volver()">
+      <i class="bi bi-arrow-left"></i> Volver
+    </button>
+    <div>
+      <h4 class="mb-0">
+        <i class="bi" [class.bi-incognito]="esAnonimo" [class.bi-person-lines-fill]="!esAnonimo"></i>
+        {{ esAnonimo ? 'Crear Denuncia Anónima' : 'Crear Denuncia No Anónima' }}
+      </h4>
+      <small class="text-muted">
+        {{ esAnonimo ? 'Su identidad no quedará registrada en el reporte.' : 'Sus datos de contacto quedarán registrados.' }}
+      </small>
+    </div>
+  </div>
+
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-3 text-muted">Cargando formulario...</p>
+    </div>
+  }
+
+  @if (error) {
+    <div class="alert alert-danger alert-dismissible" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+      <button type="button" class="btn-close" (click)="resetearError()"></button>
+    </div>
+  }
+
+  @if (erroresValidacion.length > 0) {
+    <div class="alert alert-warning" role="alert">
+      <strong><i class="bi bi-exclamation-circle-fill me-2"></i>Faltan campos obligatorios:</strong>
+      <ul class="mb-0 mt-1 ps-3">
+        @for (e of erroresValidacion; track e) {
+          <li>{{ e }}</li>
+        }
+      </ul>
+    </div>
+  }
+
+  @if (exito) {
+    <div class="exito-card text-center py-5">
+      <i class="bi bi-check-circle-fill fs-1 text-success d-block mb-3"></i>
+      <h5 class="fw-semibold">{{ mensajeExito }}</h5>
+      <p class="text-muted mb-4">Gracias por su reporte. Será procesado en la brevedad posible.</p>
+      <button class="btn btn-primary px-4" (click)="volver()">
+        <i class="bi bi-house-fill me-2"></i>Ir al inicio
+      </button>
+    </div>
+  }
+
+  @if (!cargando && comentarioAdmin) {
+    <div class="alert alert-warning d-flex gap-2 mb-3">
+      <i class="bi bi-arrow-counterclockwise fs-5 flex-shrink-0 mt-1"></i>
+      <div>
+        <strong>Esta denuncia fue devuelta por el administrador</strong>
+        <div class="mt-1">{{ comentarioAdmin }}</div>
+        @if (camposRechazados.length > 0) {
+          <div class="mt-1 small">
+            Los campos marcados en <span class="text-danger fw-semibold">rojo</span> requieren corrección.
+            Los demás campos están <span class="fw-semibold">bloqueados</span> y no pueden modificarse.
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!cargando && !exito && formulario && seccionActual) {
+
+    @if (totalSteps > 1) {
+      <div class="stepper-bar mb-4">
+        @for (sec of seccionesVisibles; track sec.id; let i = $index) {
+          <div class="step-item">
+            <button type="button" class="step-btn"
+                    [class.step-done]="i < currentStep"
+                    [class.step-active]="i === currentStep"
+                    [class.step-pending]="i > currentStep"
+                    (click)="irAPaso(i)">
+              @if (i < currentStep) { <i class="bi bi-check-lg"></i> } @else { {{ i + 1 }} }
+            </button>
+            <span class="step-label" [class.label-active]="i === currentStep">
+              {{ sec.nombre || ('Paso ' + (i + 1)) }}
+            </span>
+          </div>
+          @if (i < seccionesVisibles.length - 1) {
+            <div class="step-connector" [class.done]="i < currentStep"></div>
+          }
+        }
+      </div>
+      <div class="progress progress-bar-thin mb-4">
+        <div class="progress-bar bg-primary" [style.width.%]="progreso"></div>
+      </div>
+    }
+
+    <form #form="ngForm">
+      @if (!modoRegistrador) {
+        <div class="card seccion-card mb-4">
+          <div class="card-body">
+            <label class="form-label" for="idEmpresaSelect">Empresa <span class="text-danger">*</span></label>
+            <select
+              id="idEmpresaSelect"
+              name="idEmpresa"
+              class="form-select"
+              [(ngModel)]="idEmpresa"
+              required>
+              <option [ngValue]="null" disabled>-- Seleccione la empresa a la que corresponde su denuncia --</option>
+              @for (e of empresas; track e.id) {
+                <option [value]="e.id">{{ e.nombre }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      }
+      <div class="card seccion-card mb-4">
+        @if (seccionActual.mostrarNombre && seccionActual.nombre) {
+          <div class="card-header seccion-header">
+            <h5 class="mb-0"><i class="bi bi-bookmark-fill me-2"></i>{{ seccionActual.nombre }}</h5>
+            @if (seccionActual.descripcion) { <small>{{ seccionActual.descripcion }}</small> }
+          </div>
+        }
+        <div class="card-body">
+          <div class="row g-3">
+            @for (campo of seccionActual.campos; track campo.id) {
+              @if (isCampoVisible(campo.id)) {
+
+                @if (campo.tipoCampo === TIPO.LABEL) {
+                  <div [class]="getColClass(campo.col)">
+                    <div class="label-content" [innerHTML]="campo.descripcion"></div>
+                  </div>
+                }
+
+                @else if (campo.tipoCampo === TIPO.TABLA) {
+                  <div [class]="getFieldClass(campo.id, 12, true)">
+                    <label class="form-label fw-semibold">
+                      {{ campo.nombre }}
+                      @if (campo.obligatorio) { <span class="text-danger">*</span> }
+                    </label>
+                    @if (campo.ayuda) { <small class="d-block text-muted mb-2">{{ campo.ayuda }}</small> }
+                    <div class="table-responsive">
+                      <table class="table table-sm table-bordered tabla-campo">
+                        <thead class="table-light">
+                          <tr>
+                            @for (hijo of campo.camposHijo; track hijo.id) {
+                              <th>{{ hijo.nombre }}@if (hijo.obligatorio) { <span class="text-danger">*</span> }</th>
+                            }
+                            <th class="col-accion"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (fila of filasTabla[campo.id]; track $index; let i = $index) {
+                            <tr>
+                              @for (hijo of campo.camposHijo; track hijo.id) {
+                                <td>
+                                  @if (hijo.tipoCampo === TIPO.SELECT_UNICO) {
+                                    <select class="form-select form-select-sm"
+                                            [(ngModel)]="fila[hijo.id]"
+                                            [name]="'tabla_' + campo.id + '_' + i + '_' + hijo.id"
+                                            [disabled]="!esCampoEditable(campo.id, seccionActual!.id)"
+                                            (change)="onCampoChange()">
+                                      <option [ngValue]="null">-- Seleccione --</option>
+                                      @for (opt of parametros[hijo.tipoParametro]; track opt.id) {
+                                        <option [value]="opt.id">{{ opt.nombre }}</option>
+                                      }
+                                    </select>
+                                  } @else {
+                                    <input class="form-control form-control-sm"
+                                           type="text"
+                                           [(ngModel)]="fila[hijo.id]"
+                                           [name]="'tabla_' + campo.id + '_' + i + '_' + hijo.id"
+                                           [disabled]="!esCampoEditable(campo.id, seccionActual!.id)"
+                                           (change)="onCampoChange()" />
+                                  }
+                                </td>
+                              }
+                              <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        (click)="eliminarFila(campo.id, i)"
+                                        [disabled]="filasTabla[campo.id].length <= 1 || !esCampoEditable(campo.id, seccionActual!.id)">
+                                  <i class="bi bi-trash"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary"
+                            (click)="agregarFila(campo.id, campo)"
+                            [disabled]="!esCampoEditable(campo.id, seccionActual!.id)">
+                      <i class="bi bi-plus-circle me-1"></i>Agregar fila
+                    </button>
+                  </div>
+                }
+
+                @else if (campo.tipoCampo === TIPO.ADJUNTO) {
+                  <div [class]="getFieldClass(campo.id, campo.col)">
+                    <label class="form-label">
+                      {{ campo.nombre }}
+                      @if (campo.obligatorio) { <span class="text-danger">*</span> }
+                    </label>
+
+                    @if (adjuntosDeCampo(campo.id).length > 0) {
+                      <div class="adjunto-lista mb-2">
+                        @for (adj of adjuntosDeCampo(campo.id); track adj.id) {
+                          <div class="adjunto-item">
+                            <i class="bi bi-file-earmark me-1 text-primary"></i>
+                            <button type="button" class="btn btn-link p-0 adjunto-nombre"
+                                    [title]="adj.nombreOriginal"
+                                    (click)="descargarAdjunto(adj.id, adj.nombreOriginal)">
+                              {{ adj.nombreOriginal }}
+                            </button>
+                            <span class="adjunto-size">{{ formatBytes(adj.tamanoBytes) }}</span>
+                            @if (esCampoEditable(campo.id, seccionActual!.id)) {
+                              <button type="button" class="btn-adjunto-del"
+                                      (click)="eliminarAdjuntoSubido(adj)" title="Eliminar">
+                                <i class="bi bi-x-circle"></i>
+                              </button>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    @if (archivosPendientesDeCampo(campo.id).length > 0) {
+                      <div class="adjunto-lista adjunto-lista--pending mb-2">
+                        @for (f of archivosPendientesDeCampo(campo.id); track $index; let pi = $index) {
+                          <div class="adjunto-item adjunto-item--pending">
+                            <i class="bi bi-clock me-1 text-warning"></i>
+                            <span class="adjunto-nombre">{{ f.name }}</span>
+                            <span class="adjunto-size">{{ formatBytes(f.size) }}</span>
+                            <button type="button" class="btn-adjunto-del"
+                                    (click)="quitarArchivoPendiente(campo.id, pi)" title="Quitar">
+                              <i class="bi bi-x-circle"></i>
+                            </button>
+                          </div>
+                        }
+                        <div class="form-text text-warning small">
+                          <i class="bi bi-info-circle me-1"></i>Se subirán al guardar.
+                        </div>
+                      </div>
+                    }
+
+                    @if (esCampoEditable(campo.id, seccionActual!.id)) {
+                      <label class="adjunto-dropzone"
+                             [class.adjunto-dropzone--active]="archivoArrastrandoSobre === campo.id"
+                             [for]="'adj_' + campo.id"
+                             (dragenter)="onDragEnterAdjunto($event, campo.id)"
+                             (dragover)="onDragOverAdjunto($event)"
+                             (dragleave)="onDragLeaveAdjunto($event, campo.id)"
+                             (drop)="onDropAdjunto($event, campo.id)">
+                        <i class="bi bi-cloud-arrow-up adjunto-dropzone-icon"></i>
+                        <div class="adjunto-dropzone-texto">
+                          <strong>Arrastra tus archivos aquí</strong>
+                          <span>o haz clic para seleccionar {{ (adjuntosDeCampo(campo.id).length + archivosPendientesDeCampo(campo.id).length) > 0 ? 'otro archivo' : 'archivo(s)' }}</span>
+                        </div>
+                        @if (campo.cantAdjuntos > 0) {
+                          <span class="adjunto-dropzone-max">Máximo {{ campo.cantAdjuntos }} archivo(s)</span>
+                        }
+                      </label>
+                      <input type="file" class="d-none" [id]="'adj_' + campo.id"
+                             [multiple]="campo.cantAdjuntos > 1"
+                             (change)="onArchivoSeleccionado($event, campo.id)" />
+                    }
+                  </div>
+                }
+
+                @else if (campo.tipoCampo === TIPO.SELECT_UNICO) {
+                  <div [class]="getFieldClass(campo.id, campo.col)">
+                    <label class="form-label" [for]="'campo_' + campo.id">
+                      {{ campo.nombre }}
+                      @if (campo.obligatorio) { <span class="text-danger">*</span> }
+                    </label>
+                    <select class="form-select"
+                            [id]="'campo_' + campo.id"
+                            [name]="'campo_' + campo.id"
+                            [(ngModel)]="valores[campo.id]"
+                            [required]="campo.obligatorio"
+                            [disabled]="!esCampoEditable(campo.id, seccionActual!.id)"
+                            (change)="onCampoChange()">
+                      <option [ngValue]="null">-- Seleccione --</option>
+                      @for (opt of getParametrosFiltrados(campo); track opt.id) {
+                        <option [value]="opt.id">{{ opt.nombre }}</option>
+                      }
+                    </select>
+                    @if (campo.ayuda) { <div class="form-text">{{ campo.ayuda }}</div> }
+                  </div>
+                }
+
+                @else if (campo.tipoCampo === TIPO.SELECT_MULTIPLE) {
+                  <div [class]="getFieldClass(campo.id, campo.col)">
+                    <label class="form-label fw-semibold">
+                      {{ campo.nombre }}
+                      @if (campo.obligatorio) { <span class="text-danger">*</span> }
+                    </label>
+                    @if (campo.ayuda) { <div class="form-text mb-2">{{ campo.ayuda }}</div> }
+                    <div class="multi-check-group">
+                      @for (opt of parametros[campo.tipoParametro]; track opt.id) {
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox"
+                                 [id]="'chk_' + campo.id + '_' + opt.id"
+                                 [checked]="isMultiSelected(campo.id, opt.id)"
+                                 [disabled]="!esCampoEditable(campo.id, seccionActual!.id)"
+                                 (change)="toggleMultiSelect(campo.id, opt.id)" />
+                          <label class="form-check-label" [for]="'chk_' + campo.id + '_' + opt.id">
+                            {{ opt.nombre }}
+                          </label>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+
+                @else if (campo.tipoCampo === TIPO.OBSERVACION) {
+                  <div [class]="getFieldClass(campo.id, campo.col)">
+                    <label class="form-label" [for]="'campo_' + campo.id">
+                      {{ campo.nombre }}
+                      @if (campo.obligatorio) { <span class="text-danger">*</span> }
+                    </label>
+                    <textarea class="form-control"
+                              [id]="'campo_' + campo.id"
+                              [name]="'campo_' + campo.id"
+                              rows="4"
+                              [(ngModel)]="valores[campo.id]"
+                              [required]="campo.obligatorio"
+                              [disabled]="!esCampoEditable(campo.id, seccionActual!.id)"
+                              [placeholder]="campo.descripcion ?? ''"
+                              (change)="onCampoChange()"></textarea>
+                    @if (campo.ayuda) { <div class="form-text">{{ campo.ayuda }}</div> }
+                  </div>
+                }
+
+                @else if (campo.tipoCampo === TIPO.FECHA) {
+                  <div [class]="getFieldClass(campo.id, campo.col)">
+                    <label class="form-label" [for]="'campo_' + campo.id">
+                      {{ campo.nombre }}
+                      @if (campo.obligatorio) { <span class="text-danger">*</span> }
+                    </label>
+                    <input type="date" class="form-control"
+                           [id]="'campo_' + campo.id"
+                           [name]="'campo_' + campo.id"
+                           [(ngModel)]="valores[campo.id]"
+                           [required]="campo.obligatorio"
+                           [disabled]="!esCampoEditable(campo.id, seccionActual!.id)"
+                           (change)="onCampoChange()" />
+                    @if (campo.ayuda) { <div class="form-text">{{ campo.ayuda }}</div> }
+                  </div>
+                }
+
+                @else if (campo.tipoCampo === TIPO.TIME) {
+                  <div [class]="getFieldClass(campo.id, campo.col)">
+                    <label class="form-label" [for]="'campo_' + campo.id">
+                      {{ campo.nombre }}
+                      @if (campo.obligatorio) { <span class="text-danger">*</span> }
+                    </label>
+                    <input type="time" class="form-control"
+                           [id]="'campo_' + campo.id"
+                           [name]="'campo_' + campo.id"
+                           [(ngModel)]="valores[campo.id]"
+                           [required]="campo.obligatorio"
+                           [disabled]="!esCampoEditable(campo.id, seccionActual!.id)"
+                           (change)="onCampoChange()" />
+                    @if (campo.ayuda) { <div class="form-text">{{ campo.ayuda }}</div> }
+                  </div>
+                }
+
+                @else if (campo.tipoCampo === TIPO.EMAIL) {
+                  <div [class]="getFieldClass(campo.id, campo.col)">
+                    <label class="form-label" [for]="'campo_' + campo.id">
+                      {{ campo.nombre }}
+                      @if (campo.obligatorio) { <span class="text-danger">*</span> }
+                    </label>
+                    <input type="email" class="form-control"
+                           [id]="'campo_' + campo.id"
+                           [name]="'campo_' + campo.id"
+                           [(ngModel)]="valores[campo.id]"
+                           [required]="campo.obligatorio"
+                           [disabled]="!esCampoEditable(campo.id, seccionActual!.id)"
+                           [placeholder]="campo.ayuda ?? 'correo@ejemplo.com'"
+                           (change)="onCampoChange()" />
+                    @if (campo.ayuda) { <div class="form-text">{{ campo.ayuda }}</div> }
+                  </div>
+                }
+
+                @else if (campo.tipoCampo === TIPO.NUMERO) {
+                  <div [class]="getFieldClass(campo.id, campo.col)">
+                    <label class="form-label" [for]="'campo_' + campo.id">
+                      {{ campo.nombre }}
+                      @if (campo.obligatorio) { <span class="text-danger">*</span> }
+                    </label>
+                    <input type="number" class="form-control"
+                           [id]="'campo_' + campo.id"
+                           [name]="'campo_' + campo.id"
+                           [(ngModel)]="valores[campo.id]"
+                           [required]="campo.obligatorio"
+                           [disabled]="!esCampoEditable(campo.id, seccionActual!.id)"
+                           (change)="onCampoChange()" />
+                    @if (campo.ayuda) { <div class="form-text">{{ campo.ayuda }}</div> }
+                  </div>
+                }
+
+                @else {
+                  <div [class]="getFieldClass(campo.id, campo.col)">
+                    <label class="form-label" [for]="'campo_' + campo.id">
+                      {{ campo.nombre }}
+                      @if (campo.obligatorio) { <span class="text-danger">*</span> }
+                    </label>
+                    <input type="text" class="form-control"
+                           [id]="'campo_' + campo.id"
+                           [name]="'campo_' + campo.id"
+                           [(ngModel)]="valores[campo.id]"
+                           [required]="campo.obligatorio"
+                           [disabled]="!esCampoEditable(campo.id, seccionActual!.id)"
+                           [placeholder]="campo.ayuda ?? ''"
+                           (change)="onCampoChange()" />
+                    @if (campo.ayuda) { <div class="form-text">{{ campo.ayuda }}</div> }
+                  </div>
+                }
+
+              }
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons mb-5">
+
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-outline-secondary" (click)="volver()" [disabled]="enviando || guardando">
+            <i class="bi bi-x-circle me-1"></i>Cancelar
+          </button>
+
+          @if (!modoRegistrador) {
+            <button type="button" class="btn btn-guardar" (click)="guardar()" [disabled]="guardando || enviando">
+              @if (guardando) {
+                <span class="spinner-border spinner-border-sm me-2"></span>Guardando...
+              } @else if (guardadoOk) {
+                <i class="bi bi-check-circle-fill me-2 text-success"></i>Guardado
+              } @else if (estaDevuelto) {
+                <i class="bi bi-floppy me-2"></i>Guardar avance
+              } @else {
+                <i class="bi bi-floppy me-2"></i>Guardar borrador
+              }
+            </button>
+          }
+
+          @if (idDenuncia) {
+            <span class="borrador-badge" [class.devuelto-badge]="estaDevuelto">
+              @if (estaDevuelto) {
+                <i class="bi bi-arrow-counterclockwise me-1"></i>En corrección #{{ idDenuncia }}
+              } @else {
+                <i class="bi bi-pencil-square me-1"></i>Borrador #{{ idDenuncia }}
+              }
+            </span>
+          }
+        </div>
+
+        <div class="d-flex gap-2">
+          @if (!isFirstStep) {
+            <button type="button" class="btn btn-outline-primary" (click)="anteriorPaso()" [disabled]="enviando || guardando">
+              <i class="bi bi-chevron-left me-1"></i>Anterior
+            </button>
+          }
+          @if (!isLastStep) {
+            <button type="button" class="btn btn-primary px-4" (click)="siguientePaso()">
+              Siguiente<i class="bi bi-chevron-right ms-1"></i>
+            </button>
+          } @else {
+            <button type="button" class="btn btn-success px-4" (click)="enviar()" [disabled]="enviando || guardando || form.invalid">
+              @if (enviando) { <span class="spinner-border spinner-border-sm me-2"></span> }
+              <i class="bi bi-send-fill me-2"></i>
+              {{ enviando ? 'Enviando...' : (estaDevuelto ? 'Enviar corrección' : 'Enviar Denuncia') }}
+            </button>
+          }
+        </div>
+      </div>
+
+    </form>
+  }
+
+</div>

@@ -1,0 +1,28 @@
+.layout-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f0f4f8;
+  position: relative;
+}
+
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.layout-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.layout-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 499;
+  backdrop-filter: blur(2px);
+}

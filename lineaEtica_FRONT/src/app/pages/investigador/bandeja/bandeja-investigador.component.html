@@ -1,0 +1,83 @@
+<div class="bandeja-wrapper">
+  <div class="bandeja-header">
+    <h4 class="mb-1"><i class="bi bi-search me-2"></i>Mis Investigaciones</h4>
+    <p class="text-muted mb-0">Denuncias asignadas a usted para investigación.</p>
+  </div>
+
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary"></div>
+      <p class="mt-2 text-muted">Cargando denuncias...</p>
+    </div>
+  } @else if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  } @else {
+    <div class="filtros-bar mb-3">
+      <button class="btn btn-sm" [class.btn-primary]="filtro === 'activas'" [class.btn-outline-primary]="filtro !== 'activas'" (click)="setFiltro('activas')">
+        <i class="bi bi-hourglass-split me-1"></i>En Investigación
+        <span class="badge bg-white text-primary ms-1">{{ activas.length }}</span>
+      </button>
+      <button class="btn btn-sm ms-2" [class.btn-secondary]="filtro === 'cerradas'" [class.btn-outline-secondary]="filtro !== 'cerradas'" (click)="setFiltro('cerradas')">
+        <i class="bi bi-check-circle me-1"></i>Cerradas
+        <span class="badge bg-white text-secondary ms-1">{{ cerradas.length }}</span>
+      </button>
+      <button class="btn btn-sm btn-outline-dark ms-2" [class.btn-dark]="filtro === 'todas'" (click)="setFiltro('todas')">
+        Todas ({{ denuncias.length }})
+      </button>
+    </div>
+
+    @if (lista.length === 0) {
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox" style="font-size:3rem;"></i>
+        <p class="mt-2">No hay denuncias en esta sección.</p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Radicado</th>
+              <th>Formulario</th>
+              <th>Estado</th>
+              <th>Tipo</th>
+              <th>Fecha Creación</th>
+              <th>Asignada</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of lista; track d.id) {
+              <tr class="fila-denuncia" (click)="verDetalle(d)" role="button">
+                <td>
+                  @if (d.consecutivo) {
+                    <span class="badge bg-light text-dark border">#{{ d.consecutivo }}</span>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+                <td>{{ d.nombreFormulario }}</td>
+                <td>
+                  <span class="badge" [ngClass]="getEstadoBadge(d.idEstado)">{{ d.estado }}</span>
+                </td>
+                <td>
+                  @if (d.esAnonimo) {
+                    <span class="badge bg-secondary"><i class="bi bi-incognito me-1"></i>Anónima</span>
+                  } @else {
+                    <span class="badge bg-info text-dark"><i class="bi bi-person me-1"></i>Identificada</span>
+                  }
+                </td>
+                <td>{{ d.fechaCreacion | date:'dd/MM/yyyy' }}</td>
+                <td>{{ d.fechaAsignacion | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary" (click)="$event.stopPropagation(); verDetalle(d)">
+                    <i class="bi bi-eye me-1"></i>Ver
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

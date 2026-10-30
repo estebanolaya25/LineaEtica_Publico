@@ -1,0 +1,130 @@
+.dashboard {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.dash-header {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+  border-left: 4px solid var(--accent, #486581);
+}
+
+.kpi-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1px 6px rgba(0,0,0,.07);
+  border: 1px solid #e9eef4;
+  cursor: pointer;
+  transition: transform .18s, box-shadow .18s;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,.1);
+  }
+}
+
+.kpi-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; flex-shrink: 0;
+}
+
+.kpi-body {
+  display: flex; flex-direction: column; gap: 2px;
+}
+
+.kpi-value {
+  font-size: 1.9rem; font-weight: 700; line-height: 1;
+}
+
+.kpi-label {
+  font-size: .75rem; font-weight: 500; color: #718096;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+
+.kpi-total  { .kpi-icon { background: rgba(var(--accent-rgb),.12); color: var(--accent); }  .kpi-value { color: var(--accent); } }
+.kpi-pending{ .kpi-icon { background: #fef3c7; color: #d97706; } .kpi-value { color: #d97706; } }
+.kpi-invest { .kpi-icon { background: #dbeafe; color: #1a7fc1; } .kpi-value { color: #1a7fc1; } }
+.kpi-closed { .kpi-icon { background: #d1fae5; color: #198754; } .kpi-value { color: #198754; } }
+
+.chart-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 6px rgba(0,0,0,.07);
+  border: 1px solid #e9eef4;
+}
+
+.chart-title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 1.25rem;
+}
+
+.empty-chart {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.donut-svg {
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+.donut-center-num {
+  font-size: 22px;
+  font-weight: 700;
+  fill: #1a202c;
+  font-family: inherit;
+}
+
+.donut-center-lbl {
+  font-size: 10px;
+  fill: #a0aec0;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  flex: 1;
+  min-width: 130px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: .8rem;
+}
+
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-name { flex: 1; color: #4a5568; }
+.legend-val  { font-weight: 700; color: #1a202c; }
+.legend-pct  { font-size: .72rem; }

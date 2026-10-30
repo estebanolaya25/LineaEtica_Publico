@@ -1,0 +1,4 @@
+{
+  "apiUrl": "https://localhost:7195/api",
+  "checkNameApiUrl": "https://localhost:7195/api"
+}

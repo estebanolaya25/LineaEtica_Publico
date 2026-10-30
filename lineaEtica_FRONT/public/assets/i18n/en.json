@@ -1,0 +1,19 @@
+{
+  "SIGN_IN": "Sign In",
+  "PASSWORD": "Password",
+  "FORGOT_PASSWORD": "Forgot Password?",
+  "LOGIN": "Login",
+  "RECUPERACION_TITLE": "Complete the following information to recover your password",
+  "ENVIAR_MAIL": "Send Email",
+  "Regresar": "Go Back",
+  "NumeroDocumento": "Username / Document Number",
+  "Correo": "Email",
+  "CampoRequerido": "This field is required.",
+  "RefrescarCaptcha": "Refresh CAPTCHA",
+  "IngreseCaptcha": "Enter the CAPTCHA",
+  "Bienvenido": "Welcome",
+  "CerrarSession": "Logout",
+  "CambiarContraseña": "Change Password",
+  "Cerrar": "Close",
+  "Aceptar": "Accept"
+}

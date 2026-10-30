@@ -1,0 +1,201 @@
+<div class="bandeja-container">
+
+  <div class="page-title mb-4">
+    @if (seccion() === 'pendientes') {
+      <h4 class="mb-0"><i class="bi bi-clock-history me-2 text-warning"></i>Por Revisar</h4>
+      <small class="text-muted">Denuncias enviadas y corregidas que requieren atención</small>
+    } @else if (seccion() === 'historial') {
+      <h4 class="mb-0"><i class="bi bi-archive-fill me-2 text-secondary"></i>Historial</h4>
+      <small class="text-muted">Denuncias aprobadas, rechazadas y cerradas</small>
+    } @else {
+      <h4 class="mb-0"><i class="bi bi-inbox-fill me-2"></i>Bandeja de Denuncias</h4>
+      <small class="text-muted">Gestión y seguimiento de todos los reportes</small>
+    }
+  </div>
+
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border" style="color: var(--accent)" role="status"></div>
+      <p class="mt-3 text-muted">Cargando denuncias...</p>
+    </div>
+  }
+
+  @if (error) {
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+    </div>
+  }
+
+  @if (!cargando && !error) {
+
+    @if (showPendientes) {
+      <div class="section-card section-pendientes mb-4">
+        <div class="section-head">
+          <div class="section-head-left">
+            <span class="section-dot dot-warning"></span>
+            <span class="section-title">Por revisar</span>
+            <span class="section-count count-warning">{{ pendientes.length }}</span>
+          </div>
+          <small class="text-muted d-none d-sm-block">Enviadas · Corregidas</small>
+        </div>
+
+        @if (pendientes.length === 0) {
+          <div class="empty-state">
+            <i class="bi bi-check-circle-fill text-success fs-3 mb-2 d-block"></i>
+            <p class="mb-0">No hay denuncias pendientes de revisión</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table tabla-lista mb-0">
+              <thead>
+                <tr>
+                  <th style="width:36px">#</th>
+                  <th>Radicado</th>
+                  <th>Formulario</th>
+                  <th>Tipo</th>
+                  <th>Reportante</th>
+                  @if (esDuenoProceso) {
+                    <th>Empresa</th>
+                  }
+                  <th>Estado</th>
+                  <th>Fecha</th>
+                  <th style="min-width:140px"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (d of pendientes; track d.id) {
+                  <tr>
+                    <td class="text-muted small">{{ d.id }}</td>
+                    <td>
+                      @if (d.consecutivo) {
+                        <span class="fw-semibold" style="color:var(--accent)">#{{ d.consecutivo }}</span>
+                      } @else {
+                        <span class="text-muted fst-italic small">—</span>
+                      }
+                    </td>
+                    <td class="small">{{ d.nombreFormulario }}</td>
+                    <td>
+                      <span class="tipo-badge" [class.anonima]="d.esAnonimo" [class.no-anonima]="!d.esAnonimo">
+                        <i class="bi me-1" [class.bi-incognito]="d.esAnonimo" [class.bi-person-lines-fill]="!d.esAnonimo"></i>
+                        {{ d.esAnonimo ? 'Anónima' : 'Identificada' }}
+                      </span>
+                    </td>
+                    <td class="text-muted small">{{ d.esAnonimo ? '—' : (d.usuarioReportante ?? '—') }}</td>
+                    @if (esDuenoProceso) {
+                      <td class="small text-muted">{{ d.nombreEmpresa ?? '—' }}</td>
+                    }
+                    <td>
+                      <span class="badge estado-badge" [ngClass]="getEstadoBadge(d.estado)">{{ d.estado }}</span>
+                    </td>
+                    <td class="text-muted small">{{ d.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <button class="btn btn-sm btn-primary" (click)="revisar(d)">
+                          <i class="bi bi-eye-fill me-1"></i>Revisar
+                        </button>
+                        <button class="btn btn-sm btn-pdf"
+                                (click)="descargarPdf(d)"
+                                [disabled]="pdfGenerando.has(d.id)"
+                                title="Descargar PDF">
+                          @if (pdfGenerando.has(d.id)) {
+                            <span class="spinner-border spinner-border-sm"></span>
+                          } @else {
+                            <i class="bi bi-file-earmark-pdf-fill"></i>
+                          }
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+
+    @if (showHistorial) {
+      <div class="section-card section-historial">
+        <div class="section-head">
+          <div class="section-head-left">
+            <span class="section-dot dot-muted"></span>
+            <span class="section-title">Historial</span>
+            <span class="section-count count-muted">{{ historial.length }}</span>
+          </div>
+          <small class="text-muted d-none d-sm-block">Aprobadas · Rechazadas · Cerradas</small>
+        </div>
+
+        @if (historial.length === 0) {
+          <div class="empty-state">
+            <i class="bi bi-archive fs-3 mb-2 d-block text-muted"></i>
+            <p class="mb-0">Sin registros en el historial</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table tabla-lista tabla-historial mb-0">
+              <thead>
+                <tr>
+                  <th>Radicado</th>
+                  <th>Formulario</th>
+                  <th>Tipo</th>
+                  <th>Reportante</th>
+                  @if (esDuenoProceso) {
+                    <th>Empresa</th>
+                  }
+                  <th>Estado</th>
+                  <th>Fecha</th>
+                  <th style="min-width:120px"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (d of historial; track d.id) {
+                  <tr>
+                    <td>
+                      @if (d.consecutivo) {
+                        <span class="fw-semibold">#{{ d.consecutivo }}</span>
+                      } @else {
+                        <span class="text-muted fst-italic small">—</span>
+                      }
+                    </td>
+                    <td class="small text-muted">{{ d.nombreFormulario }}</td>
+                    <td>
+                      <span class="tipo-badge small" [class.anonima]="d.esAnonimo" [class.no-anonima]="!d.esAnonimo">
+                        {{ d.esAnonimo ? 'Anónima' : 'Identificada' }}
+                      </span>
+                    </td>
+                    <td class="small text-muted">{{ d.esAnonimo ? '—' : (d.usuarioReportante ?? '—') }}</td>
+                    @if (esDuenoProceso) {
+                      <td class="small text-muted">{{ d.nombreEmpresa ?? '—' }}</td>
+                    }
+                    <td>
+                      <span class="badge estado-badge" [ngClass]="getEstadoBadge(d.estado)">{{ d.estado }}</span>
+                    </td>
+                    <td class="small text-muted">{{ d.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <button class="btn btn-sm btn-outline-secondary" (click)="revisar(d)">
+                          <i class="bi bi-eye me-1"></i>Ver
+                        </button>
+                        <button class="btn btn-sm btn-pdf"
+                                (click)="descargarPdf(d)"
+                                [disabled]="pdfGenerando.has(d.id)"
+                                title="Descargar PDF">
+                          @if (pdfGenerando.has(d.id)) {
+                            <span class="spinner-border spinner-border-sm"></span>
+                          } @else {
+                            <i class="bi bi-file-earmark-pdf-fill"></i>
+                          }
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+
+  }
+</div>

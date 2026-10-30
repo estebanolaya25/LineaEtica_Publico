@@ -1,0 +1,132 @@
+$accent: #486581;
+$accent-dark: #334e68;
+
+.registro-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #dde8f0 50%, #9fb3c8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(72,101,129,0.07) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+  }
+}
+
+.registro-wrapper {
+  width: 100%;
+  max-width: 420px;
+  padding: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.registro-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 24px 64px rgba(72, 101, 129, 0.16);
+}
+
+.logo-icon-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  .logo-svg { width: 56px; height: 56px; }
+}
+
+.logo-label {
+  font-size: 0.85rem;
+  color: #718096;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.login-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.login-subtitle {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.form-label {
+  color: #4a5568;
+  margin-bottom: 0.35rem;
+}
+
+.input-icon-wrapper {
+  position: relative;
+  .input-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #718096;
+    font-size: 0.95rem;
+    pointer-events: none;
+  }
+  .input-with-icon {
+    padding-left: 2.4rem;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus {
+      border-color: $accent;
+      box-shadow: 0 0 0 3px rgba(72,101,129,0.12);
+      outline: none;
+    }
+    &.is-invalid {
+      border-color: #e53e3e;
+    }
+  }
+}
+
+.btn-login {
+  background: linear-gradient(135deg, $accent, $accent-dark);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0.7rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: opacity 0.2s;
+
+  &:hover:not(:disabled) { opacity: 0.9; }
+  &:disabled { opacity: 0.65; }
+}
+
+.forgot-link {
+  color: $accent;
+  font-size: 0.85rem;
+  text-decoration: none;
+  font-weight: 500;
+  &:hover { text-decoration: underline; }
+}
+
+.captcha-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.captcha-canvas {
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  flex: 1;
+}
+
+.captcha-refresh { flex-shrink: 0; }

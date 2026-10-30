@@ -1,0 +1,124 @@
+<div class="mis-denuncias-container">
+
+  <div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <button class="btn btn-outline-secondary btn-sm me-3" (click)="volver()">
+          <i class="bi bi-arrow-left"></i> Volver
+        </button>
+        <span class="page-title">
+          <i class="bi bi-list-check me-2"></i>Mis Denuncias
+        </span>
+      </div>
+      <button class="btn btn-primary btn-sm" (click)="nueva()">
+        <i class="bi bi-plus-circle me-1"></i> Nueva denuncia
+      </button>
+    </div>
+  </div>
+
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-3 text-muted">Cargando denuncias...</p>
+    </div>
+  }
+
+  @if (error) {
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+    </div>
+  }
+
+  @if (!cargando && !error && denuncias.length === 0) {
+    <div class="empty-state text-center py-5">
+      <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+      <h5 class="text-muted">Aún no tiene denuncias registradas</h5>
+      <p class="text-muted small">Cuando ingrese un reporte, podrá verlo y hacer seguimiento aquí.</p>
+      <button class="btn btn-primary mt-2" (click)="nueva()">
+        <i class="bi bi-plus-circle me-2"></i>Crear primera denuncia
+      </button>
+    </div>
+  }
+
+  @if (!cargando && denuncias.length > 0) {
+    <div class="card shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Radicado</th>
+              <th>Tipo</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th class="text-center" style="min-width:170px">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of denuncias; track d.id) {
+              <tr>
+                <td class="text-muted small">{{ d.id }}</td>
+                <td>
+                  @if (d.consecutivo) {
+                    <span class="fw-semibold text-primary">#{{ d.consecutivo }}</span>
+                  } @else {
+                    <span class="text-muted fst-italic small">Sin radicado</span>
+                  }
+                </td>
+                <td>
+                  <span class="tipo-badge" [class.anonima]="d.esAnonimo" [class.no-anonima]="!d.esAnonimo">
+                    <i class="bi me-1" [class.bi-incognito]="d.esAnonimo" [class.bi-person-lines-fill]="!d.esAnonimo"></i>
+                    {{ d.esAnonimo ? 'Anónima' : 'No anónima' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge estado-badge" [ngClass]="getEstadoBadge(d.estado)">
+                    {{ d.estado }}
+                  </span>
+                </td>
+                <td class="text-muted small">
+                  {{ d.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}
+                </td>
+                <td class="text-center">
+                  <div class="d-flex gap-1 justify-content-center">
+
+                    @if (esBorrador(d)) {
+                      <button class="btn btn-sm btn-outline-primary" (click)="continuarBorrador(d)"
+                              title="Continuar llenando">
+                        <i class="bi bi-pencil-square me-1"></i>Continuar
+                      </button>
+                    }
+
+                    @if (esDevuelto(d)) {
+                      <button class="btn btn-sm btn-warning" (click)="continuarBorrador(d)"
+                              title="Corregir campos devueltos">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Corregir
+                      </button>
+                    }
+
+                    @if (puedeDescargarPdf(d)) {
+                      <button class="btn btn-sm btn-pdf"
+                              (click)="descargarPdf(d)"
+                              [disabled]="pdfGenerando.has(d.id)"
+                              title="Descargar PDF">
+                        @if (pdfGenerando.has(d.id)) {
+                          <span class="spinner-border spinner-border-sm me-1"></span>
+                        } @else {
+                          <i class="bi bi-file-earmark-pdf-fill me-1"></i>
+                        }
+                        PDF
+                      </button>
+                    }
+
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="text-muted small mt-2 text-end">{{ denuncias.length }} reporte(s) encontrado(s)</p>
+  }
+
+</div>
